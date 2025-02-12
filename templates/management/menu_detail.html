@@ -1,0 +1,20 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<section class="menu-detail-section" style="padding: 5rem 0;">
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Menu Detail</h1>
+    <div class="menu-detail" style="text-align: center;">
+      <h2>{{ menu.name }}</h2>
+      <img src="{{ menu.image.url }}" alt="{{ menu_images }}" style="width: 50%; height: auto; border-radius: 8px; margin-bottom: 1rem;">
+      <p><strong>Price:</strong> ₹{{ menu.price }}</p>
+      {% if menu.description %}
+        <p>{{ menu.description }}</p>
+      {% endif %}
+      <p><strong>Unit:</strong> {{ menu.unit }}</p>
+      <p><strong>Quantity:</strong> {{ menu.quantity }}</p>
+      <p><strong>Discount:</strong> {{ menu.discount }}%</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

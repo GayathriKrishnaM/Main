@@ -1,0 +1,151 @@
+{% extends "management/base.html" %}
+{% load static %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="profile-wrapper">
+  <div class="profile-card">
+    <h1 class="profile-title">My Profile</h1>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="POST" action="{% url 'profile' %}" class="profile-form">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input type="text" name="full_name" id="full_name" value="{{ customer.full_name }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="mobile">Mobile Number</label>
+        <input type="text" name="mobile" id="mobile" value="{{ customer.mobile }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="dob">Date of Birth</label>
+        <input type="date" name="dob" id="dob" value="{{ customer.dob|date:'Y-m-d' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="place">Place</label>
+        <input type="text" name="place" id="place" value="{{ customer.place }}">
+      </div>
+
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" name="city" id="city" value="{{ customer.city }}">
+      </div>
+
+      <div class="form-group">
+        <label for="pin">PIN Code</label>
+        <input type="text" name="pin" id="pin" value="{{ customer.pin }}">
+      </div>
+      <button type="submit" class="btn-update">Update Profile</button>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Add this CSS to your static CSS file or within <style> tags */
+
+body {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Poppins', sans-serif;
+  color: #343a40;
+}
+
+.profile-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 100px; /* This moves the content down */
+}
+
+.profile-card {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  max-width: 600px;
+  width: 100%;
+}
+
+.profile-title {
+  font-size: 2.5rem;
+  color: #c19a6b; /* Using your primary color */
+  text-align: center;
+  margin-bottom: 30px;
+  font-family: 'Playfair Display', serif;
+}
+
+.profile-form .form-group {
+  margin-bottom: 20px;
+}
+
+.profile-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.profile-form input:focus {
+  border-color: #c19a6b;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(193,154,107,0.2);
+}
+
+.btn-update {
+  width: 100%;
+  padding: 15px;
+  background-color: #c19a6b;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-update:hover {
+  background-color: #a87f52;
+}
+
+.messages {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.messages li {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.messages li.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.messages li.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}Customer Management | Admin Panel{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Customer Management</h1>
+      </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Customers</h3>
+      <div class="stat-value">{{ customers|length }}</div>
+    </div>
+  </div>
+
+  <!-- Customer Table -->
+  <div class="data-table">
+    <table class="customers-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Contact</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr>
+          <td>#{{ customer.id }}</td>
+          <td>{{ customer.full_name }} ({{ customer.email }})</td>
+          <td>{{ customer.mobile }}</td>
+          <td>{{ customer.city }}, {{ customer.place }}, {{ customer.pin }}</td>
+          <td>
+            <button class="btn-action btn-view">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-action btn-edit">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="no-data">No customers found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}Dashboard | Admin Panel{% endblock %}
+
+{% block content %}
+  <h1>Admin Dashboard</h1>
+  
+  <!-- Stats Overview -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Today's Revenue</h3>
+      <div class="stat-value">${{ daily_revenue }}</div>
+      <small>{{ daily_orders }} orders</small>
+    </div>
+    <div class="stat-card">
+      <h3>Monthly Revenue</h3>
+      <div class="stat-value">${{ monthly_revenue }}</div>
+      <small>{{ monthly_orders }} orders</small>
+    </div>
+    <div class="stat-card">
+      <h3>Active Staff</h3>
+      <div class="stat-value">{{ active_staff }}</div>
+      <small>{{ available_staff }} available</small>
+    </div>
+  </div>
+
+  <!-- Recent Orders Table -->
+  <div class="data-table">
+    <h2>Recent Orders</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.customer.name }}</td>
+          <td>${{ order.total_amount }}</td>
+          <td>
+            <span class="status-badge status-{{ order.status|lower }}">
+              {{ order.status }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-action btn-view">
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="data-table">
+    <h2>Revenue Overview</h2>
+    <canvas id="revenueChart"></canvas>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Revenue Chart Implementation
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+          label: 'Daily Revenue',
+          data: {{ chart_data|safe }},
+          borderColor: '#c19a6b',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        }
+      }
+    });
+  </script>
+{% endblock %}

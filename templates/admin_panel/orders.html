@@ -1,0 +1,69 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}Order Management | Admin Panel{% endblock %}
+
+{% block content %}
+  <h1>Order Management</h1>
+
+  <!-- Stats Overview -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Orders</h3>
+      <div class="stat-value">{{ total_orders }}</div>
+      <small>{{ pending_orders }} pending</small>
+    </div>
+    <div class="stat-card">
+      <h3>Today's Orders</h3>
+      <div class="stat-value">{{ today_orders }}</div>
+      <small>${{ today_revenue }} revenue</small>
+    </div>
+    <div class="stat-card">
+      <h3>Avg. Order Value</h3>
+      <div class="stat-value">${{ average_order_value }}</div>
+      <small>{{ peak_hour }} peak time</small>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="data-table">
+    <h2>Recent Orders</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Order Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.customer.name }}</td>
+          <td>{{ order.items.count }}</td>
+          <td>${{ order.total_amount }}</td>
+          <td>
+            <span class="status-badge status-{{ order.status|lower }}">
+              {{ order.status }}
+            </span>
+          </td>
+          <td>{{ order.created_at|date:"M d, H:i" }}</td>
+          <td>
+            <button class="btn-action btn-view">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-action btn-edit">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

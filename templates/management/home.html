@@ -1,0 +1,67 @@
+{% extends "management/base.html" %}
+
+{% block content %}
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Ganga Restaurant</h1>
+      <h2>Experience Culinary Excellence</h2>
+      <p>Where passion meets flavor - A symphony of taste crafted just for you</p>
+      <div class="cta-buttons">
+        <button onclick="window.location.href='{% url 'menu' %}'">
+          Explore Menu <i class="fas fa-utensils"></i>
+        </button>        
+        <button onclick="window.location.href='{% url 'table_reservation' %}'">
+          Reserve Table <i class="fas fa-calendar-alt"></i></button>
+        <button>Order Online <i class="fas fa-shopping-bag"></i></button>
+        <button class="btn-event-catering">
+          Book Event & Catering 
+          <i class="fas fa-glass-cheers"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+  
+  <!-- About Section -->
+  <section class="about" id="about">
+    <h2>Our Culinary Journey</h2>
+    <p> 
+      For over decades, Ganga Restaurant has been more than a dining destination—it is a celebration of heritage, community, and innovation. Rooted in a deep respect for tradition and a passion for culinary artistry, our journey began with a simple vision: to create unforgettable meals that honor the past while embracing the present. Every dish we serve tells a story, woven from the freshest locally-sourced ingredients, time-honored recipes passed down through generations, and a touch of modern creativity that keeps our offerings vibrant and relevant.  
+      
+      Our commitment to locally-sourced ingredients is at the heart of everything we do. We partner with farmers, fishermen, and artisans across the region, forging relationships built on trust and sustainability. By prioritizing seasonal produce, ethically raised meats, and regional specialties, we not only ensure the highest quality on your plate but also support the livelihoods of our local community. Each ingredient is chosen with care, from the fragrant spices that perfume our kitchens to the crisp vegetables that add color and vitality to every dish. This farm-to-table philosophy isn’t just a trend for us—it’s a promise to preserve the land’s bounty and share its authentic flavors with you.  
+      
+      The soul of Ganga Restaurant lies in our reverence for tradition. Our menu is a tapestry of recipes steeped in history, many of which have been lovingly preserved from family kitchens and culinary archives. Whether it’s the slow-cooked curries that simmer for hours, the hand-rolled breads baked in clay ovens, or the delicate balance of spices perfected over centuries, we honor these techniques with unwavering dedication. Yet, while we cherish the past, we are not bound by it. Our chefs—masters of both heritage and innovation—reimagine these classics with contemporary flair. Think familiar comfort foods elevated by unexpected textures, global influences that harmonize with regional staples, or artful presentations that delight the eye as much as the palate. This delicate balance of old and new ensures that every meal at Ganga feels both timeless and exciting.  
+            
+      As we look to the future, our mission remains unchanged: to be a place where food is more than sustenance—it’s a bridge between generations, cultures, and stories. We invite you to be part of this journey, to taste the love and legacy in every dish, and to discover why, for over 30 years, Ganga Restaurant has been a cherished chapter in our guests’ lives. Here, tradition dances with innovation, and every meal is an ode to the land, the people, and the shared joy of breaking bread together. Welcome to our table.</p>
+  </section>
+  
+  <!-- Featured Dishes Section -->
+  <section class="featured-dishes">
+    <h2>Signature Creations</h2>
+    <div class="dishes">
+      <div class="dish">
+        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-1.2.1&auto=format&fit=crop&w=3300&q=80" alt="Truffle Risotto">
+        <h3>Truffle Infused Risotto</h3>
+        <button>Order Now <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="dish">
+        <img src="https://images.unsplash.com/photo-1585238342024-78d387f4a707?ixlib=rb-1.2.1&auto=format&fit=crop&w=3200&q=80" alt="Beef Wellington">
+        <h3>Premium Beef Wellington</h3>
+        <button>Order Now <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="dish">
+        <img src="https://images.unsplash.com/photo-1551028150-64b9f398f678?ixlib=rb-1.2.1&auto=format&fit=crop&w=3370&q=80" alt="Chocolate Soufflé">
+        <h3>Grand Marnier Soufflé</h3>
+        <button>Order Now <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Contact Section -->
+  <section class="contact" id="contact">
+    <h2>Connect With Us</h2>
+    <p><i class="fas fa-map-marker-alt"></i><strong>Address:</strong> West Hill Beach, Calicut - 5</p>
+    <p><i class="fas fa-phone"></i><strong>Phone:</strong> 9074105604</p>
+    <p><i class="fas fa-envelope"></i><strong>Email:</strong> santhoshkumarkv@gmail.com</p>
+  </section>
+{% endblock %}

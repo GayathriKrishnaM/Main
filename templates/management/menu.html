@@ -1,0 +1,25 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<section class="menu-section" style="padding: 5rem 0;">
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Our Menus</h1>
+    <div class="menu-items" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center;">
+      {% for menu in menus %}
+        <div class="menu-item" style="border: 1px solid #ccc; padding: 1rem; border-radius: 8px; width: 300px; text-align: center;">
+          <h2>
+            <a href="{% url 'menu_detail' menu_id=menu.id %}" style="color: var(--primary-color); text-decoration: none;">
+              {{ menu.name }}
+            </a>
+          </h2>
+          {% if menu.description %}
+            <p>{{ menu.description }}</p>
+          {% endif %}
+        </div>
+      {% empty %}
+        <p>No menus available at the moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
