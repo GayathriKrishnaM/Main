@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'management',
     'custom_admin',
+    'staff',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -134,10 +135,6 @@ MEDIA_URL = '/media_images/'
 
 MEDIA_ROOT = BASE_DIR / 'media_images/'
 
-# Add if not already present
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static'),
-# ]
 
 # For production (collect static files to serve)
 
@@ -145,3 +142,13 @@ MEDIA_ROOT = BASE_DIR / 'media_images/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# settings.py
+LOGIN_URL = '/staff/login/'
+LOGIN_REDIRECT_URL = '/staff/login/'
+
+RAZORPAY_KEY_ID = "rzp_test_lwvilRyd2xizjv"
+RAZORPAY_KEY_SECRET = "OED4i658sR3bTTJhAi454pDu"

@@ -1,6 +1,7 @@
 {% extends "management/base.html" %}
 
 {% block content %}
+
   <!-- Hero Section -->
   <header class="hero">
     <div class="hero-content">
@@ -13,8 +14,10 @@
         </button>        
         <button onclick="window.location.href='{% url 'table_reservation' %}'">
           Reserve Table <i class="fas fa-calendar-alt"></i></button>
-        <button>Order Online <i class="fas fa-shopping-bag"></i></button>
-        <button class="btn-event-catering">
+          <button onclick="window.location.href='{% url 'menu' %}'">
+            Order Online <i class="fas fa-utensils"></i>
+          </button>        
+          <button onclick="window.location.href='{% url 'plan_event' %}'">
           Book Event & Catering 
           <i class="fas fa-glass-cheers"></i>
         </button>
@@ -22,7 +25,6 @@
     </div>
   </header>
   
-  <!-- About Section -->
   <section class="about" id="about">
     <h2>Our Culinary Journey</h2>
     <p> 
@@ -35,33 +37,65 @@
       As we look to the future, our mission remains unchanged: to be a place where food is more than sustenance—it’s a bridge between generations, cultures, and stories. We invite you to be part of this journey, to taste the love and legacy in every dish, and to discover why, for over 30 years, Ganga Restaurant has been a cherished chapter in our guests’ lives. Here, tradition dances with innovation, and every meal is an ode to the land, the people, and the shared joy of breaking bread together. Welcome to our table.</p>
   </section>
   
-  <!-- Featured Dishes Section -->
   <section class="featured-dishes">
     <h2>Signature Creations</h2>
     <div class="dishes">
       <div class="dish">
-        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-1.2.1&auto=format&fit=crop&w=3300&q=80" alt="Truffle Risotto">
-        <h3>Truffle Infused Risotto</h3>
-        <button>Order Now <i class="fas fa-arrow-right"></i></button>
+        <img src="media\\menu_images\\biriyani.jpg" alt="Chicekn Biriyani">
+        <h3>Chicken Biriyani</h3>
+        {% comment %} <button>Order Now <i class="fas fa-arrow-right"></i></button> {% endcomment %}
       </div>
       <div class="dish">
-        <img src="https://images.unsplash.com/photo-1585238342024-78d387f4a707?ixlib=rb-1.2.1&auto=format&fit=crop&w=3200&q=80" alt="Beef Wellington">
-        <h3>Premium Beef Wellington</h3>
-        <button>Order Now <i class="fas fa-arrow-right"></i></button>
+        <img src="media\\menu_images\\Screenshot_2025-03-03_193557.png" alt="Meals">
+        <h3>Meals</h3>
+        {% comment %} <button>Order Now <i class="fas fa-arrow-right"></i></button> {% endcomment %}
       </div>
       <div class="dish">
-        <img src="https://images.unsplash.com/photo-1551028150-64b9f398f678?ixlib=rb-1.2.1&auto=format&fit=crop&w=3370&q=80" alt="Chocolate Soufflé">
-        <h3>Grand Marnier Soufflé</h3>
-        <button>Order Now <i class="fas fa-arrow-right"></i></button>
+        <img src="media\\menu_images\\Screenshot_2025-03-03_190533.png" alt="Masala Dosa">
+        <h3>Masala Dosa</h3>
+        {% comment %} <button>Order Now <i class="fas fa-arrow-right"></i></button> {% endcomment %}
       </div>
     </div>
   </section>
   
-  <!-- Contact Section -->
   <section class="contact" id="contact">
     <h2>Connect With Us</h2>
-    <p><i class="fas fa-map-marker-alt"></i><strong>Address:</strong> West Hill Beach, Calicut - 5</p>
-    <p><i class="fas fa-phone"></i><strong>Phone:</strong> 9074105604</p>
-    <p><i class="fas fa-envelope"></i><strong>Email:</strong> santhoshkumarkv@gmail.com</p>
-  </section>
+    <div class="contact-content">
+        <div class="feedback-form">
+            <h3>Feedback</h3>
+            <p>Share your thoughts with us.</p>
+          <form method="post" action="{% url 'submit_feedback' %}">
+            {% csrf_token %}
+
+              <label for="message">Message:</label>
+              <textarea id="message" name="comments" rows="4" cols="30"></textarea>
+              
+              <label for="rating">Rating:</label>
+              <div class="rating">
+                  <input type="radio" name="rating" id="star5" value="5">
+                  <label for="star5">&#9733;</label>
+                  <input type="radio" name="rating" id="star4" value="4">
+                  <label for="star4">&#9733;</label>
+                  <input type="radio" name="rating" id="star3" value="3">
+                  <label for="star3">&#9733;</label>
+                  <input type="radio" name="rating" id="star2" value="2">
+                  <label for="star2">&#9733;</label>
+                  <input type="radio" name="rating" id="star1" value="1">
+                  <label for="star1">&#9733;</label>
+              </div>
+              
+              <input type="submit" value="Submit">
+          </form>
+          
+        </div>
+        <div class="contact-info">
+            <h3>Contact Details</h3>
+            <p><i class="fas fa-map-marker-alt"></i><strong>Address:</strong> West Hill Beach, Calicut - 5</p>
+            <p><i class="fas fa-phone"></i><strong>Phone:</strong> 9074105604</p>
+            <p><i class="fas fa-envelope"></i><strong>Email:</strong> santhoshkumarkv@gmail.com</p>
+        </div>
+        <div class="map-container">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.6749065565873!2d75.76550157486471!3d11.285290688896122!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba65edc7687f2f3%3A0x6c77d762cb821523!2sHotel%20Ganga!5e0!3m2!1sen!2sin!4v1740807870572!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>        </div>
+    </div>
+</section>
 {% endblock %}

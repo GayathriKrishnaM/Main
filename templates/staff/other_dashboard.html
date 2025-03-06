@@ -1,0 +1,51 @@
+{% extends 'staff/staff_base.html' %}
+
+{% block title %}Delivery Dashboard{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ staff.full_name }}!</h1>
+
+<h2>Orders Ready for Delivery</h2>
+{% if orders_for_delivery %}
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Address</th>
+        <th>Items</th>
+        <th>Contact</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders_for_delivery %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.customer.full_name }}</td>
+        <td>
+          {{ order.customer.place }}, {{ order.customer.city }}, {{ order.customer.pin }}
+        </td>
+        <td>
+          <ul>
+            {% for item in order.items.all %}
+            <li>{{ item.quantity }} x {{ item.menu_variant.menu.name }} - {{ item.menu_variant.variant_name }}</li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>{{ order.customer.mobile }}</td>
+        <td>
+          <form action="{% url 'update_delivery_status' order.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="delivery_status" value="delivered">
+            <button type="submit">Mark as Delivered</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No orders ready for delivery.</p>
+{% endif %}
+{% endblock %}

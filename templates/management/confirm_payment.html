@@ -1,0 +1,52 @@
+{% extends "management/base.html" %}
+
+{% block content %}
+<section class="payment-section" style="padding: 5rem 0;">
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Confirm Payment</h1>
+    <div class="reservation-info" style="margin-bottom: 2rem; text-align: center;">
+      <p><strong>Reservation ID:</strong> {{ reservation.id }}</p>
+      <p><strong>Table ID:</strong> {{ reservation.table_id }}</p>
+      <p><strong>Guest Count:</strong> {{ reservation.guest_count }}</p>
+      <p><strong>Date:</strong> {{ reservation.date }}</p>
+      <p><strong>Time:</strong> {{ reservation.time }}</p>
+ </div>
+    <div class="preorder-info" style="text-align: center; margin-bottom: 2rem;">
+      <h3>Preordered Items</h3>
+      {% if preorders %}
+        <ul>
+          {% for preorder in preorders %}
+          <li>{{ preorder.quantity }}  {{ preorder.menu.name }} - ₹{{ preorder.price }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No preordered items.</p>
+      {% endif %}
+    </div>
+
+    <p style="text-align: center; margin-top: 20px; font-weight: bold;">Booking Fee: ₹{{ reservation.booking_fee }}</p>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+      <form action="{% url 'confirm_reservation_payment' %}" method="post">
+        {% csrf_token %}
+        <script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          data-key="{{ razorpay_key_id }}"
+          data-amount="{{ booking_fee|floatformat:2|add:"0" }}"
+          data-currency="{{ currency }}"
+          data-order_id="{{ razorpay_order_id }}"
+          data-buttontext="Pay with Razorpay"
+          data-name="Ganga"
+          data-description="Reservation Payment"
+          data-image="https://your-logo-url"  <!-- Update with your logo URL -->
+          data-prefill.name="{{ user.username }}"
+          data-prefill.email="{{ user.email }}"
+          data-theme.color="#F37254"></script>
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

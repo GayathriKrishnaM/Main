@@ -1,0 +1,9 @@
+{% extends "staff/staff_base.html" %}
+
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Welcome, {{ staff.full_name }}!</h1>
+  <p>Your role is: {{ staff.get_role_display }}</p>
+  <p>This is your dashboard. Add your staff-specific functionality here.</p>
+{% endblock %}

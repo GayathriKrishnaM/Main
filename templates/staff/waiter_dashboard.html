@@ -1,0 +1,55 @@
+{% extends 'staff_base.html' %}
+
+{% block title %}Waiter Dashboard{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ staff.full_name }}!</h1>
+
+<h2>Today's Reservations</h2>
+{% if reservations %}
+  <table>
+    <thead>
+      <tr>
+        <th>Reservation ID</th>
+        <th>Customer</th>
+        <th>Table</th>
+        <th>Time</th>
+        <th>Guest Count</th>
+        <th>Pre-orders</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reservation in reservations %}
+      <tr>
+        <td>{{ reservation.id }}</td>
+        <td>{{ reservation.customer.full_name }}</td>
+        <td>{{ reservation.table_id }}</td>
+        <td>{{ reservation.time }}</td>
+        <td>{{ reservation.guest_count }}</td>
+        <td>
+          {% if reservation.preorders.exists %}
+            <ul>
+              {% for preorder in reservation.preorders.all %}
+              <li>{{ preorder.quantity }} x {{ preorder.menu_variant.menu.name }} - {{ preorder.menu_variant.variant_name }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            None
+          {% endif %}
+        </td>
+        <td>
+          <form action="{% url 'update_reservation_status' reservation.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="booking_status" value="completed">
+            <button type="submit">Mark as Completed</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No reservations for today.</p>
+{% endif %}
+{% endblock %}

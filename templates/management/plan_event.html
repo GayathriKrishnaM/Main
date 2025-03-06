@@ -1,0 +1,175 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<h1>Plan Your Event</h1>
+
+<!-- Display success and error messages -->
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert {{ message.tags }}">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <div>
+    <label for="event_date">Event Date</label>
+    <input type="date" name="event_date" required>
+  </div>
+  <div>
+    <label for="guest_count">Number of Guests</label>
+    <input type="number" id="guest_count" name="guest_count" min="1" required onchange="calculateTotal()">
+  </div>
+
+  <div style="display: flex; align-items: center; margin-bottom: 10px; line-height: 1.5;">
+    <label for="event_type" style="margin-right: 10px;">Event Type</label>
+    <select id="event_type" name="event_type" onchange="toggleOtherEventType(this.value)">
+      <option value="marriage">Marriage</option>
+      <option value="birthday">Birthday</option>
+      <option value="reception">Reception</option>
+      <option value="others">Others</option>
+    </select>
+  </div>
+
+  <div id="other-event-type" style="display: none;">
+    <label for="other_event_type">Specify Event Type</label>
+    <input type="text" name="other_event_type">
+  </div>
+
+  <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
+    <label for="order">Select Food Items</label>
+    <div class="menu-list" style="margin-left: 50px; padding: 2px; margin-bottom: 10px;">
+      {% for menu in menus %}
+      <div class="menu-item">
+        <input type="checkbox" name="menu_items" value="{{ menu.id }}" data-price="{{ menu.price }}" onchange="calculateTotal()"> 
+        <span>{{ menu.name }} - ₹{{ menu.price }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <label for="custom_dish">Custom Dish (optional)</label>
+    <input type="text" name="custom_dish">
+  </div>
+  <div>
+    <label for="amount">Total Amount</label>
+    <input type="number" id="total_amount" name="amount" readonly>
+    <small>Note: The amount is subjected to change.</small>
+  </div>
+  <div>
+    <label for="advance_amount">Advance Amount </label>
+    <input type="number" id="advance_amount" name="advance_amount" readonly>
+  </div>
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">    
+    <label for="catering_service">Include Catering Service (optional)</label>
+    <input type="checkbox" name="catering_service" value="yes">
+  </div>
+  <button type="submit">Submit Event Plan</button>
+</form>
+
+<style>
+/* Add this CSS to your static CSS file or within <style> tags */
+
+h1 {
+  text-align: center;
+  margin-top: 5rem; /* Adjust this value to move the heading further down */
+}
+
+h3 {
+  color: rgb(110, 110, 87);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+label {
+  font-weight: bold;
+}
+
+input[type="date"],
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #a87f52; /* Adjusted to match hover color */
+}
+
+.alert {
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.alert.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.menu-list .menu-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+</style>
+
+<script>
+function toggleOtherEventType(value) {
+  var otherEventTypeDiv = document.getElementById("other-event-type");
+  if (value === "others") {
+    otherEventTypeDiv.style.display = "block";
+  } else {
+    otherEventTypeDiv.style.display = "none";
+  }
+}
+
+function calculateTotal() {
+  var guestCount = parseInt(document.getElementById('guest_count').value) || 0;
+  var menuItems = document.getElementsByName('menu_items');
+  
+  var totalAmount = 0;
+
+  for (var i = 0; i < menuItems.length; i++) {
+    if (menuItems[i].checked) {
+      var price = parseFloat(menuItems[i].dataset.price);
+      totalAmount += price * guestCount;
+    }
+  }
+
+  totalAmount = totalAmount.toFixed(2);  // Ensure it's in decimal format
+  
+  document.getElementById('total_amount').value = totalAmount;
+  document.getElementById('advance_amount').value = (totalAmount * 0.30).toFixed(2);
+}
+</script>
+
+{% endblock %}

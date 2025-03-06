@@ -6,9 +6,7 @@
 {% block content %}
   <div class="header-bar">
     <h1>Catering Event Management</h1>
-    <button class="btn-primary">
-      <i class="fas fa-plus"></i> New Event
-    </button>
+
   </div>
 
   <div class="stats-grid">
@@ -18,54 +16,40 @@
       <small>{{ total_events }} total</small>
     </div>
     <div class="stat-card">
-      <h3>Avg. Guests</h3>
-      <div class="stat-value">{{ average_guests }}</div>
-      <small>{{ max_guests }} max</small>
-    </div>
-    <div class="stat-card">
       <h3>Catering Revenue</h3>
-      <div class="stat-value">${{ catering_revenue }}</div>
+      <div class="stat-value">₹{{ catering_revenue }}</div>
       <small>{{ monthly_catering }} this month</small>
     </div>
   </div>
 
-  <div class="data-table">
-    <table>
-      <thead>
-        <tr>
-          <th>Event Name</th>
-          <th>Date</th>
-          <th>Location</th>
-          <th>Guests</th>
-          <th>Menu Items</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for event in catering_events %}
-        <tr>
-          <td>{{ event.name }}</td>
-          <td>{{ event.date|date:"M d, Y" }}</td>
-          <td>{{ event.location }}</td>
-          <td>{{ event.guests }}</td>
-          <td>{{ event.menu_items.count }}</td>
-          <td>
-            <span class="status-badge status-{{ event.status|lower }}">
-              {{ event.status }}
-            </span>
-          </td>
-          <td>
-            <button class="btn-action btn-view">
-              <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-action btn-edit">
-              <i class="fas fa-edit"></i>
-            </button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<h2>Event Bookings</h2>
+{% if events %}
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Customer</th>
+        <th>Event Date</th>
+        <th>Guest Count</th>
+        <th>Amount</th>
+        <th>Payment Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.id }}</td>
+        <td>{{ event.customer.full_name }}</td>
+        <td>{{ event.event_date }}</td>
+        <td>{{ event.guest_count }}</td>
+        <td>{{ event.amount }}</td>
+        <td>{{ event.get_payment_status_display }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No event bookings found.</p>
+{% endif %}
 {% endblock %}

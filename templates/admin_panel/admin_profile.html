@@ -1,0 +1,44 @@
+<!-- custom_admin/templates/custom_admin/admin_profile.html -->
+
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block title %}Admin Profile{% endblock %}
+
+{% block content %}
+<h2>Admin Profile</h2>
+
+<div class="profile-info">
+    <p><strong>Username:</strong> {{ request.user.username }}</p>
+    <p><strong>Email:</strong> restaurantganga@gmail.com</p>
+</div>
+
+<div class="profile-actions">
+    <a href="{% url 'custom_admin:admin_change_password' %}" class="btn">Change Password</a>
+</div>
+
+<style>
+/* Add some basic styling */
+.profile-info {
+    margin-bottom: 20px;
+}
+
+.profile-info p {
+    font-size: 18px;
+}
+
+.profile-actions .btn {
+    display: inline-block;
+    padding: 10px 15px;
+    margin-right: 10px;
+    background-color: #2980b9;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.profile-actions .btn:hover {
+    background-color: #3498db;
+}
+</style>
+
+{% endblock %}

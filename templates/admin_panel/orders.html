@@ -18,11 +18,6 @@
       <div class="stat-value">{{ today_orders }}</div>
       <small>${{ today_revenue }} revenue</small>
     </div>
-    <div class="stat-card">
-      <h3>Avg. Order Value</h3>
-      <div class="stat-value">${{ average_order_value }}</div>
-      <small>{{ peak_hour }} peak time</small>
-    </div>
   </div>
 
   <!-- Orders Table -->
@@ -44,7 +39,7 @@
         {% for order in orders %}
         <tr>
           <td>#{{ order.id }}</td>
-          <td>{{ order.customer.name }}</td>
+          <td>{{ order.customer.full_name }}</td>
           <td>{{ order.items.count }}</td>
           <td>${{ order.total_amount }}</td>
           <td>

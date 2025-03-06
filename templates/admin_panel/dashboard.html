@@ -10,18 +10,23 @@
   <div class="stats-grid">
     <div class="stat-card">
       <h3>Today's Revenue</h3>
-      <div class="stat-value">${{ daily_revenue }}</div>
-      <small>{{ daily_orders }} orders</small>
+      <div class="stat-value">₹{{ daily_revenue }}</div>
     </div>
     <div class="stat-card">
       <h3>Monthly Revenue</h3>
-      <div class="stat-value">${{ monthly_revenue }}</div>
-      <small>{{ monthly_orders }} orders</small>
+      <div class="stat-value">₹{{ monthly_revenue }}</div>
     </div>
     <div class="stat-card">
-      <h3>Active Staff</h3>
-      <div class="stat-value">{{ active_staff }}</div>
-      <small>{{ available_staff }} available</small>
+      <h3>Order Revenue</h3>
+      <div class="stat-value">₹{{ order_revenue }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Event Revenue</h3>
+      <div class="stat-value">₹{{ event_revenue }}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Table Reservation Revenue</h3>
+      <div class="stat-value">₹{{ reservation_revenue }}</div>
     </div>
   </div>
 
@@ -35,30 +40,124 @@
           <th>Customer</th>
           <th>Amount</th>
           <th>Status</th>
+          <th>Date</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {% for order in recent_orders %}
+        {% if orders %}
+          {% for order in orders %}
+          <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.customer.full_name }}</td>
+            <td>₹{{ order.total_amount|floatformat:2 }}</td>
+            <td>
+              <span class="status-badge status-{{ order.order_status|lower }}">
+                {{ order.order_status }}
+              </span>
+            </td>
+            <td>{{ order.date_time|date:"M d, H:i" }}</td>
+            <td>
+              <button class="btn-action btn-view">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn-action btn-edit">
+                <i class="fas fa-edit"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6">No orders found.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Table Reservations Table -->
+<div class="data-table">
+  <h2>Recent Table Reservations</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Reservation ID</th>
+        <th>Customer</th>
+        <th>Table Number</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if reservations %}
+        {% for reservation in reservations %}
         <tr>
-          <td>#{{ order.id }}</td>
-          <td>{{ order.customer.name }}</td>
-          <td>${{ order.total_amount }}</td>
-          <td>
-            <span class="status-badge status-{{ order.status|lower }}">
-              {{ order.status }}
-            </span>
-          </td>
+          <td>#{{ reservation.id }}</td>
+          <td>{{ reservation.customer.full_name }}</td>
+          <td>{{ reservation.table_number }}</td>
+          <td>{{ reservation.date|date:"M d" }}</td>
+          <td>{{ reservation.time|time:"H:i" }}</td>
           <td>
             <button class="btn-action btn-view">
               <i class="fas fa-eye"></i>
             </button>
+            <button class="btn-action btn-edit">
+              <i class="fas fa-edit"></i>
+            </button>
           </td>
         </tr>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+      {% else %}
+        <tr>
+          <td colspan="6">No reservations found.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Recent Event Bookings Table -->
+<div class="data-table">
+  <h2>Recent Event Bookings</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Customer</th>
+        <th>Event Type</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if events %}
+        {% for event in events %}
+        <tr>
+          <td>#{{ event.id }}</td>
+          <td>{{ event.customer.full_name }}</td>
+          <td>{{ event.event_type }}</td>
+          <td>{{ event.date|date:"M d" }}</td>
+          <td>
+            <button class="btn-action btn-view">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-action btn-edit">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="6">No event bookings found.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
 
   <!-- Revenue Chart -->
   <div class="data-table">

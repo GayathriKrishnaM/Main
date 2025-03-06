@@ -1,0 +1,64 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<section class="checkout-section" style="padding: 5rem 0;">
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Checkout</h1>
+    {% if cart %}
+      <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key, item in cart.items %}
+          <tr style="border-bottom: 1px solid #ccc;">
+            <td>
+              {% if item.image %}
+                <img src="{{ item.image }}" alt="{{ item.name }}" style="width: 50px; height: auto; vertical-align: middle; margin-right: 10px;">
+              {% endif %}
+              {{ item.name }}
+            </td>
+            <td>₹{{ item.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
+            <td>₹{{ total|floatformat:2 }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="text-align: center; margin-top: 2rem;">
+        <form action="{% url 'place_order' %}" method="post">
+          {% csrf_token %}
+          <script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            data-key="{{ razorpay_key_id }}"
+            data-amount="{{ total|floatformat:2|add:"0" }}"
+            data-currency="{{ currency }}"
+            data-order_id="{{ razorpay_order_id }}"
+            data-buttontext="Pay with Razorpay"
+            data-name="Ganga"
+            data-description="Order Payment"
+            data-image="https://your-logo-url"  <!-- Update with your logo URL -->
+            data-prefill.name="{{ user.username }}"
+            data-prefill.email="{{ user.email }}"
+            data-theme.color="#F37254"
+          ></script>
+          <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+          <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+          <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        </form>
+      </div>
+    {% else %}
+      <p style="text-align: center;">Your cart is empty.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
