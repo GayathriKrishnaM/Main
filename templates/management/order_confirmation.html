@@ -1,0 +1,11 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<section class="order-confirmation" style="padding: 5rem 0;">
+  <div class="container" style="text-align: center;">
+    <h1>Order Confirmed!</h1>
+    <p>Thank you for your purchase. Your order has been successfully placed.</p>
+    <a href="{% url 'menu' %}" class="btn btn-primary">Back to Menu</a>
+  </div>
+</section>
+{% endblock %}

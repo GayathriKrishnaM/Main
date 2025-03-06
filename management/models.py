@@ -41,16 +41,6 @@ class Staff(Person):
 
 
 
-class Ingredient(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    quantity = models.FloatField(validators=[MinValueValidator(0)])
-    original_quantity = models.FloatField(validators=[MinValueValidator(0)])
-    expiry_date = models.DateField(null=True, blank=True)
-    stock_alert_level = models.FloatField(default=0, help_text="Alert level quantity.")
-
-    def __str__(self):
-        return self.name
-
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -61,15 +51,24 @@ class Menu(models.Model):
     name = models.CharField(max_length=100, default='Dish Name')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=50)
-    quantity = models.IntegerField()
     image = models.ImageField(upload_to='menu_images/', default='menu_images/default.jpg')
     discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='menus')
-
+    
     def __str__(self):
         return self.name
 
+class Inventory(models.Model):
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    quantity = models.FloatField(validators=[MinValueValidator(0)])
+    original_quantity = models.FloatField(validators=[MinValueValidator(0)])
+    expiry_date = models.DateField(null=True, blank=True)
+    stock_alert_level = models.FloatField(default=0, help_text="Alert level quantity.")
+
+    def __str__(self):
+        return self.name
+    
 class MenuVariant(models.Model):
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='variants')
     variant_name = models.CharField(max_length=100, help_text="Variant e.g. Chicken, Fish, Vegetable")
@@ -82,15 +81,6 @@ class MenuVariant(models.Model):
 
     def __str__(self):
         return f"{self.menu.dish_name} - {self.variant_name}"
-
-class MenuIngredient(models.Model):
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    quantity_required = models.FloatField(validators=[MinValueValidator(0)], default=0,
-                                          help_text="Quantity of ingredient used in dish")
-
-    def __str__(self):
-        return f"{self.ingredient.name} in {self.menu.dish_name}"
 
 class Order(models.Model):
     ORDER_STATUS_CHOICES = [
@@ -130,13 +120,13 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    menu_variant = models.ForeignKey(MenuVariant, on_delete=models.CASCADE)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"{self.quantity} x {self.menu_variant}"
+        return f"{self.quantity} x {self.menu}"
 
 class TableReservation(models.Model):
     RESERVATION_STATUS_CHOICES = [
@@ -166,12 +156,12 @@ class TableReservation(models.Model):
 
 class Preorder(models.Model):
     reservation = models.ForeignKey(TableReservation, related_name='preorders', on_delete=models.CASCADE)
-    menu_variant = models.ForeignKey(MenuVariant, on_delete=models.CASCADE)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
-        return f"{self.quantity} x {self.menu_variant} for Reservation {self.reservation.id}"
+        return f"{self.quantity} {self.menu} for Reservation {self.reservation.id}"
 
 class EventPlan(models.Model):
     PAYMENT_STATUS_CHOICES = [
@@ -180,8 +170,15 @@ class EventPlan(models.Model):
         ('failed', 'Failed'),
     ]
 
+    EVENT_TYPE_CHOICES = [
+        ('marriage', 'Marriage'),
+        ('birthday', 'Birthday'),
+        ('reception', 'Reception'),
+        ('others', 'Others'),
+    ]
+
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    menu_items = models.ManyToManyField(MenuVariant, blank=True)
+    menu_items = models.ManyToManyField(Menu, blank=True)
     custom_dish = models.CharField(max_length=255, blank=True, help_text="Custom dish if any")
     guest_count = models.PositiveIntegerField(default=0)
     booking_date_time = models.DateTimeField(default=timezone.now, help_text="Booking datetime")
@@ -189,8 +186,9 @@ class EventPlan(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     advance_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
-    staff = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True,
-                              help_text="Staff handling the event")
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPE_CHOICES, default='others')
+    other_event_type = models.CharField(max_length=255, blank=True, help_text="Specify if event type is others")
+    staff = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True, help_text="Staff handling the event")
 
     def __str__(self):
         return f"Event {self.id} for {self.customer.full_name}"

@@ -1,0 +1,145 @@
+{% extends 'staff/staff_base.html' %}
+
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+<h1>Welcome, Manager {{ staff.full_name }}!</h1>
+
+<h2>All Orders</h2>
+{% if orders %}
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Date & Time</th>
+        <th>Status</th>
+        <th>Total Amount</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.customer.full_name }}</td>
+        <td>{{ order.date_time }}</td>
+        <td>{{ order.get_order_status_display }}</td>
+        <td>{{ order.total_amount }}</td>
+        <td><a href="{% url 'order_detail' order.id %}">View Details</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No orders found.</p>
+{% endif %}
+
+<h2>All Reservations</h2>
+{% if reservations %}
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Reservation ID</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Guest Count</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reservation in reservations %}
+      <tr>
+        <td>{{ reservation.id }}</td>
+        <td>{{ reservation.customer.full_name }}</td>
+        <td>{{ reservation.date }}</td>
+        <td>{{ reservation.time }}</td>
+        <td>{{ reservation.get_booking_status_display }}</td>
+        <td>{{ reservation.guest_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No reservations found.</p>
+{% endif %}
+
+<h2>Event Bookings</h2>
+{% if event_plans %}
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Customer</th>
+        <th>Event Date</th>
+        <th>Guest Count</th>
+        <th>Amount</th>
+        <th>Payment Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in event_plans %}
+      <tr>
+        <td>{{ event.id }}</td>
+        <td>{{ event.customer.full_name }}</td>
+        <td>{{ event.event_date }}</td>
+        <td>{{ event.guest_count }}</td>
+        <td>{{ event.amount }}</td>
+        <td>{{ event.get_payment_status_display }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No event bookings found.</p>
+{% endif %}
+<style>
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+
+  .styled-table thead tr {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    text-align: left;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    border: 1px solid #dddddd;
+    padding: 12px 15px;
+  }
+
+  .styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+  }
+
+  .styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+  }
+
+  .styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid var(--primary-color);
+  }
+
+  .styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+
+  .styled-table a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .styled-table a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+{% endblock %}

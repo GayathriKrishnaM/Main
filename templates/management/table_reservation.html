@@ -7,25 +7,69 @@
     <form method="post" action="{% url 'table_reservation' %}">
       {% csrf_token %}
       <div class="form-group">
-        <label for="table_id">Table ID:</label>
-        <input type="text" id="table_id" name="table_id" required>
-      </div>
-      <div class="form-group">
         <label for="guest_count">Number of Guests:</label>
         <input type="number" id="guest_count" name="guest_count" min="1" required>
       </div>
-      <div class="form-group">
+      <div class="form-group" >
         <label for="date">Date:</label>
         <input type="date" id="date" name="date" required>
       </div>
-      <div class="form-group">
-        <label for="time">Time:</label>
-        <input type="time" id="time" name="time" required>
+      <div class="form-group" 
+      style="display: flex; align-items: center; margin-bottom: 15px;">
+   <!-- Label -->
+   <label for="time" 
+          style="margin: 0 10px 0 0; line-height: 1.5; font-size: 14px;">
+     Time:
+   </label>
+ 
+   <!-- Select -->
+   <select id="time" name="time" required
+           style="margin: 0; padding: 4px; line-height: 1.5; font-size: 14px;">
+     {% for slot in time_slots %}
+       <option value="{{ slot }}">{{ slot }}</option>
+     {% endfor %}
+   </select>
+ </div>
+ 
+
+      <!-- Remove any line breaks or <br> tags between "Preorder" and "Food" -->
+      <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
+        <label for="preorder" style="margin: 0; padding: 0; white-space: nowrap;">
+          Preorder Food
+        </label>
+        <input 
+          type="checkbox" 
+          id="preorder" 
+          name="preorder" 
+          onclick="toggleCategories()" 
+          style="margin-right: 450px;"
+        />
       </div>
-      <div class="form-group">
-        <label for="booking_fee">Booking Fee:</label>
-        <input type="number" id="booking_fee" name="booking_fee" step="0.01" required>
+
+      
+      <div id="category-section" style="display: none;">
+        <label for="category">Select Category</label>
+        <select id="category" name="category" onchange="loadMenuItems(this.value)">
+          <option value="">Select a Category</option>
+          {% for category in categories %}
+          <option value="{{ category.id }}">{{ category.name }}</option>
+          {% endfor %}
+        </select>
       </div>
+
+      <div id="menu-section" style="display: none;">
+        <label for="menu">Menu Items</label>
+        <div class="menu-list">
+          {% for menu in menus %}
+          <div class="menu-item">
+            <input type="checkbox" name="menu_items" value="{{ menu.id }}"> 
+            <span>{{ menu.name }} - ₹{{ menu.price }}</span>
+            <input type="number" name="quantity_{{ menu.id }}" min="1" value="1" style="width: 60px; margin-left: 50px;">          
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
       <button type="submit">Reserve Table <i class="fas fa-calendar-alt"></i></button>
     </form>
   </div>
@@ -92,5 +136,60 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.menu-item input {
+  margin-right: 10px;
+}
 </style>
+<script>
+function toggleCategories() {
+  var checkBox = document.getElementById("preorder");
+  var categorySection = document.getElementById("category-section");
+  if (checkBox.checked == true) {
+    categorySection.style.display = "block";
+  } else {
+    categorySection.style.display = "none";
+    document.getElementById("menu-section").style.display = "none";  // Hide menu section
+  }
+}
+
+function loadMenuItems(categoryId) {
+  if (categoryId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', window.location.pathname + "?category_id=" + categoryId, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(xhr.responseText, 'text/html');
+        var menuSection = doc.getElementById("menu-section").innerHTML;
+        document.getElementById("menu-section").innerHTML = menuSection;
+        document.getElementById("menu-section").style.display = "block";  // Show menu section
+      }
+    };
+    xhr.send();
+  }
+}
+
+// Show or hide menu section based on the presence of menus
+window.onload = function() {
+  var menus = {{ menus|length }};
+  var menuSection = document.getElementById("menu-section");
+  if (menus > 0) {
+    menuSection.style.display = "block";
+  } else {
+    menuSection.style.display = "none";
+  }
+}
+</script>
 {% endblock %}

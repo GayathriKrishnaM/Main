@@ -1,0 +1,22 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}Staff Detail | Admin Panel{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Staff Detail</h1>
+  </div>
+
+  <div class="staff-detail">
+    <p><strong>Full Name:</strong> {{ staff.full_name }}</p>
+    <p><strong>Date of Birth:</strong> {{ staff.dob }}</p>
+    <p><strong>Place:</strong> {{ staff.place }}</p>
+    <p><strong>City:</strong> {{ staff.city }}</p>
+    <p><strong>PIN:</strong> {{ staff.pin }}</p>
+    <p><strong>Mobile:</strong> {{ staff.mobile }}</p>
+    <p><strong>Email:</strong> {{ staff.email }}</p>
+    <p><strong>Role:</strong> {{ staff.get_role_display }}</p>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<div class="event-detail-container">
+  <h2>Event on {{ event.event_date }}</h2>
+  <div class="event-info">
+    <p><strong>Event Type:</strong> {{ event.event_type }}</p>
+    <p><strong>Guest Count:</strong> {{ event.guest_count }}</p>
+    <p><strong>Custom Dish:</strong> {{ event.custom_dish|default:"None" }}</p>
+    <p><strong>Menu Items:</strong></p>
+    <ul>
+      {% for item in event.menu_items.all %}
+        <li>{{ item.name }} - ₹{{ item.price }}</li>
+      {% empty %}
+        <li>No menu items selected.</li>
+      {% endfor %}
+    </ul>
+    <p><strong>Total Amount:</strong> ₹{{ event.amount }}</p>
+    <small>Note: The amount is subjected to change.</small>
+    <p><strong>Advance Amount:</strong> ₹{{ event.advance_amount }}</p>
+    <p><strong>Payment Status:</strong> {{ event.get_payment_status_display }}</p>
+    {% if event.catering %}
+      <p><strong>Catering Service:</strong> Included</p>
+      <p><strong>Catering Details:</strong></p>
+      <ul>
+        <li>Event Type: {{ event.catering.event_type }}</li>
+        <li>Counter Design: {{ event.catering.counter_design|default:"Standard" }}</li>
+        <li>Plate Type: {{ event.catering.plate_type|default:"Standard" }}</li>
+        <li>Catering Amount: ₹{{ event.catering.amount }}</li>
+        <li>Catering Payment Status: {{ event.catering.get_payment_status_display }}</li>
+      </ul>
+    {% else %}
+      <p><strong>Catering Service:</strong> Not Included</p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.event-detail-container {
+  margin-top: 50px;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+}
+
+.event-info, .catering-info {
+  margin-bottom: 20px;
+}
+
+.event-info p, .catering-info p {
+  font-family: 'Poppins', sans-serif;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  padding: 8px;
+  border-bottom: 1px ;
+}
+
+ul li:last-child {
+  border-bottom: none;
+}
+</style>
+{% endblock %}

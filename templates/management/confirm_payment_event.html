@@ -1,0 +1,63 @@
+{% extends "management/base.html" %}
+
+{% block content %}
+<section class="payment-section" style="padding: 5rem 0;">
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Confirm Payment</h1>
+    <div class="event-info" style="margin-bottom: 2rem; text-align: center;">
+      <p><strong>Event Plan ID:</strong> {{ event_plan.id }}</p>
+      <p><strong>Event Date:</strong> {{ event_plan.event_date }}</p>
+      <p><strong>Event Type:</strong> {{ event_plan.get_event_type_display }}</p>
+      <p><strong>Guest Count:</strong> {{ event_plan.guest_count }}</p>
+      <p><strong>Custom Dish:</strong> {{ event_plan.custom_dish|default:"None" }}</p>
+      <p><strong>Menu Items:</strong></p>
+      <ul>
+        {% for item in event_plan.menu_items.all %}
+          <li>{{ item.name }} - ₹{{ item.price }}</li>
+        {% empty %}
+          <li>No menu items selected.</li>
+        {% endfor %}
+      </ul>
+      <p><strong>Total Amount:</strong> ₹{{ event_plan.amount }}</p>
+      <p><strong>Advance Paid:</strong> ₹{{ event_plan.advance_amount }}</p>
+      {% if event_plan.catering_set.exists %}
+        <p><strong>Catering Service:</strong> Included</p>
+        <p><strong>Catering Details:</strong></p>
+        <ul>
+          {% for catering in event_plan.catering_set.all %}
+            <li>Event Type: {{ catering.event_type }}</li>
+            <li>Counter Design: {{ catering.counter_design|default:"Standard" }}</li>
+            <li>Plate Type: {{ catering.plate_type|default:"Standard" }}</li>
+            <li>Catering Amount: ₹{{ catering.amount }}</li>
+            <li>Catering Payment Status: {{ catering.get_payment_status_display }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p><strong>Catering Service:</strong> Not Included</p>
+      {% endif %}
+    </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+      <form action="{% url 'confirm_event_payment' %}" method="post">
+        {% csrf_token %}
+        <script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          data-key="{{ razorpay_key_id }}"
+          data-amount="{{ advance_amount|floatformat:2|add:"0" }}"
+          data-currency="{{ currency }}"
+          data-order_id="{{ razorpay_order_id }}"
+          data-buttontext="Pay with Razorpay"
+          data-name="Ganga"
+          data-description="Event Plan Payment"
+          data-image="https://your-logo-url"  <!-- Update with your logo URL -->
+          data-prefill.name="{{ request.user.username }}"
+          data-prefill.email="{{ request.user.email }}"
+          data-theme.color="#F37254"></script>
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

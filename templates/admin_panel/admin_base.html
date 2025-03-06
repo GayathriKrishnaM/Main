@@ -5,8 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Restaurant Dashboard | Admin Panel{% endblock %}</title>
+  <!-- Fonts and Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Styles -->
   <style>
     :root {
       --primary-color: #c19a6b;
@@ -19,9 +21,37 @@
       min-height: 100vh;
       margin: 0;
     }
+    /* Header with Admin Icon */
+    .admin-header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 25px 0px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .admin-header .admin-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color:rgb(17, 50, 58);
+      margin-right: 2rem;
+      font-size: 34px;
+      text-decoration: none;
+    }
+
+    .admin-header .admin-icon:hover {
+      color:rgb(129, 138, 145);
+    }
+    .admin-header .admin-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-top: 6px;
+    }
     .dashboard-container {
-      {% comment %} display: grid;
-      grid-template-columns: 100px 1fr; {% endcomment %}
       min-height: 100vh;
     }
     /* Sidebar */
@@ -30,7 +60,7 @@
       padding: 2rem;
       position: fixed;
       width: 250px;
-      height: 100%;
+      height: 100% /* Adjust for header */
     }
     .sidebar-brand {
       color: var(--primary-color);
@@ -56,7 +86,7 @@
       transition: all 0.3s ease;
     }
     .nav-link:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
     }
     .nav-link.active {
       background: var(--primary-color);
@@ -64,7 +94,7 @@
     /* Main Content */
     .main-content {
       padding: 2rem;
-      margin-left: 350px;  /* Adjust if needed; this accounts for the fixed sidebar */
+      margin-left: 350px; /* Width of the sidebar */
     }
     /* Stats Cards */
     .stats-grid {
@@ -77,7 +107,7 @@
       background: white;
       padding: 1.5rem;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       transition: transform 0.3s ease;
     }
     .stat-card:hover {
@@ -94,16 +124,17 @@
       background: white;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       margin: 2rem 0;
     }
     table {
       width: 100%;
       border-collapse: collapse;
     }
-    th, td {
-      color: rgba(0,0,0,0.85);
-      background-color: white; 
+    th,
+    td {
+      color: rgba(0, 0, 0, 0.85);
+      background-color: white;
       padding: 1rem;
       text-align: left;
       border-bottom: 1px solid #eee;
@@ -144,11 +175,21 @@
   {% endblock %}
 </head>
 <body>
+  <!-- Header with Admin Icon -->
+  {% if user.is_authenticated %}
+  <header class="admin-header">
+    <a href="{% url 'custom_admin:admin_profile' %}" class="admin-icon"> 
+      <i class="fas fa-user-circle"></i>
+      <span class="admin-text">Admin</span>
+    </a>
+  </header>
+  {% endif %}
   <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-brand">Ganga</div>
       <ul class="nav-menu">
+        {% if user.is_authenticated %}
         <li class="nav-item">
           <a href="{% url 'custom_admin:admin_dashboard' %}" class="nav-link">
             <i class="fas fa-tachometer-alt"></i>
@@ -158,49 +199,61 @@
         <li class="nav-item">
           <a href="{% url 'custom_admin:orders' %}" class="nav-link">
             <i class="fas fa-shopping-bag"></i>
-            Orders ({{ total_orders }})
+            Orders
           </a>
         </li>
         <li class="nav-item">
           <a href="{% url 'custom_admin:admin_customers' %}" class="nav-link">
             <i class="fas fa-users"></i>
-            Customers ({{ total_customers }})
+            Customers
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'custom_admin:staff_list' %}" class="nav-link">
+            <i class="fas fa-user-tie"></i>
+            Staff
           </a>
         </li>
         <li class="nav-item">
           <a href="{% url 'custom_admin:reservations' %}" class="nav-link">
             <i class="fas fa-calendar-check"></i>
-            Reservations ({{ upcoming_reservations }})
+            Reservations
           </a>
         </li>
         <li class="nav-item">
-          <a href="{% url 'custom_admin:catering' %}" class="nav-link">
-            <i class="fas fa-utensils"></i>
-            Catering Events ({{ active_catering }})
+          <a href="{% url 'custom_admin:events' %}" class="nav-link">
+            <i class="fas fa-concierge-bell"></i>
+            Events
           </a>
         </li>
         <!-- New Items for Adding Menu and Category -->
         <li class="nav-item">
-          <a href="{% url 'custom_admin:add_menu' %}" class="nav-link">
-            <i class="fas fa-plus"></i>
-            Add Menu
+          <a href="{% url 'custom_admin:menu_list' %}" class="nav-link">
+            <i class="fas fa-utensils"></i>
+            Menu
           </a>
         </li>
         <li class="nav-item">
-          <a href="{% url 'custom_admin:add_category' %}" class="nav-link">
-            <i class="fas fa-plus"></i>
-            Add Category
+          <a href="{% url 'custom_admin:category_list' %}" class="nav-link">
+            <i class="fas fa-utensils"></i>
+            Category
           </a>
         </li>
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a href="{% url 'custom_admin:inventory_list' %}" class="nav-link">
+            <i class="fas fa-box"></i>
+            Stock
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'custom_admin:admin_logout' %}" class="nav-link">
             <i class="fas fa-sign-out-alt"></i>
             Logout
           </a>
         </li>
       </ul>
     </aside>
-    
+    {% endif %}
     <!-- Main Content -->
     <main class="main-content">
       {% block content %}

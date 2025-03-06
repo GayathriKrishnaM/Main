@@ -1,0 +1,12 @@
+{% extends "staff/staff_base.html" %}
+{% block title %}Staff Registration{% endblock %}
+
+{% block content %}
+  <h1>Staff Registration</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+  </form>
+  <p>Already have an account? <a href="{% url 'staff_login' %}">Login here</a></p>
+{% endblock %}

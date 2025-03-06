@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Include any required head content -->
+  <title>Admin Login</title>
+  <!-- Fonts and Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Styles -->
+  <style>
+    :root {
+      --primary-color: #c19a6b;
+      --dark-color: #2a2a2a;
+      --light-color: #f8f8f8;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--light-color);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Main Content */
+    .main-content {
+      width: 100%;
+      max-width: 500px;
+      padding: 2rem;
+    }
+    /* Style the login heading */
+    .login-heading {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #2a2a2a;
+      text-align: center;
+      white-space: nowrap;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+    /* Form styling */
+    form {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: #2a2a2a;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background: #c19a6b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #a87f52;
+    }
+    /* Center error messages */
+    p {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <h2 class="login-heading">Admin Login</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color:red;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label>Username:</label>
+        <input type="text" name="username" required>
+        <label>Password:</label>
+        <input type="password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+  </div>
+</body>
+</html>

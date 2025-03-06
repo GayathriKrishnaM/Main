@@ -1,0 +1,52 @@
+{% extends 'management/base.html' %}
+
+{% block content %}
+<section class="cart-section" style="padding: 5rem 0;">
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Your Cart</h1>
+    {% if cart %}
+      <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key, item in cart.items %}
+          <tr style="border-bottom: 1px solid #ccc;">
+            <td>
+              {% if item.image %}
+                <img src="{{ item.image }}" alt="{{ item.name }}" style="width: 50px; height: auto; vertical-align: middle; margin-right: 10px;">
+              {% endif %}
+              {{ item.name }}
+            </td>
+            <td>₹{{ item.price }}</td>
+            <td>
+              <form action="{% url 'update_cart' menu_id=key %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" style="width: 60px;">
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="5" style="text-align: right; padding:2rem"><strong>Total:</strong></td>
+            <td colspan="5">₹{{ total|floatformat:2 }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'checkout' %}" class="btn btn-success">Proceed to Checkout</a>
+      </div>
+    {% else %}
+      <p style="text-align: center;">Your cart is empty.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

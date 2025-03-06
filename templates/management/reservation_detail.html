@@ -1,0 +1,63 @@
+{% extends "management/base.html" %}
+
+{% block content %}
+<div class="reservation-detail-container">
+  <h2>Reservation Details</h2>
+  <div class="reservation-info">
+    <p><strong>Reservation ID:</strong> {{ reservation.id }}</p>
+    <p><strong>Table ID:</strong> {{ reservation.table_id }}</p>
+    <p><strong>Guest Count:</strong> {{ reservation.guest_count }}</p>
+    <p><strong>Date:</strong> {{ reservation.date }}</p>
+    <p><strong>Time:</strong> {{ reservation.time }}</p>
+    <p><strong>Booking Status:</strong> {{ reservation.booking_status }}</p>
+    <p><strong>Payment Status:</strong> {{ reservation.payment_status }}</p>
+    <p><strong>Booking Fee:</strong> ₹{{ reservation.booking_fee }}</p>
+  </div>
+
+  <div class="preorder-info">
+    <h3>Preordered Items</h3>
+    {% if preorders %}
+      <ul>
+        {% for preorder in preorders %}
+        <li>{{ preorder.quantity }} x {{ preorder.menu.name }} - ₹{{ preorder.price }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No preordered items.</p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.reservation-detail-container {
+  margin-top: 50px;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+}
+
+.reservation-info, .preorder-info {
+  margin-bottom: 20px;
+}
+
+.reservation-info p, .preorder-info p {
+  font-family: 'Poppins', sans-serif;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li:last-child {
+  border-bottom: none;
+}
+</style>
+{% endblock %}

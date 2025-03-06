@@ -1,0 +1,16 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}Edit Staff | Admin Panel{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Staff Details</h1>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+{% endblock %}

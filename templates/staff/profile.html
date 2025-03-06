@@ -1,0 +1,18 @@
+{% extends "staff/staff_base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+  <h1>My Profile</h1>
+  <p><strong>Name:</strong> {{ staff.full_name }}</p>
+  <p><strong>Email:</strong> {{ staff.email }}</p>
+  <p><strong>Role:</strong> {{ staff.get_role_display }}</p>
+  <p><strong>Date of Birth:</strong> {{ staff.dob|date:"M d, Y" }}</p>
+  <p><strong>City:</strong> {{ staff.city }}</p>
+  <p><strong>Mobile:</strong> {{ staff.mobile }}</p>
+  
+  <!-- Link to edit the profile -->
+  <p>
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+  </p>
+{% endblock %}
