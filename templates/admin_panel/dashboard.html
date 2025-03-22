@@ -39,7 +39,7 @@
           <th>Order ID</th>
           <th>Customer</th>
           <th>Amount</th>
-          <th>Status</th>
+          <th>Delivery Status</th>
           <th>Date</th>
           <th>Actions</th>
         </tr>
@@ -47,25 +47,28 @@
       <tbody>
         {% if orders %}
           {% for order in orders %}
+          {% if order.delivery_status|lower != "delivered" %}
+
           <tr>
             <td>#{{ order.id }}</td>
             <td>{{ order.customer.full_name }}</td>
             <td>₹{{ order.total_amount|floatformat:2 }}</td>
             <td>
-              <span class="status-badge status-{{ order.order_status|lower }}">
-                {{ order.order_status }}
+              <span class="status-badge status-{{ order.delivery_status|lower }}">
+                {{ order.delivery_status }}
               </span>
-            </td>
+            </td>          
             <td>{{ order.date_time|date:"M d, H:i" }}</td>
             <td>
-              <button class="btn-action btn-view">
+              <a href="{% url 'custom_admin:view_order' order.pk %}" class="btn-action btn-view">
                 <i class="fas fa-eye"></i>
-              </button>
-              <button class="btn-action btn-edit">
+              </a>
+              <a href="{% url 'custom_admin:edit_order' order.pk %}" class="btn-action btn-edit">
                 <i class="fas fa-edit"></i>
-              </button>
-            </td>
+              </a>
+            </td>    
           </tr>
+          {% endif %}
           {% endfor %}
         {% else %}
           <tr>
@@ -84,7 +87,6 @@
       <tr>
         <th>Reservation ID</th>
         <th>Customer</th>
-        <th>Table Number</th>
         <th>Date</th>
         <th>Time</th>
         <th>Actions</th>
@@ -96,17 +98,17 @@
         <tr>
           <td>#{{ reservation.id }}</td>
           <td>{{ reservation.customer.full_name }}</td>
-          <td>{{ reservation.table_number }}</td>
           <td>{{ reservation.date|date:"M d" }}</td>
           <td>{{ reservation.time|time:"H:i" }}</td>
           <td>
-            <button class="btn-action btn-view">
+            <a href="{% url 'custom_admin:view_reservation' reservation.pk %}" class="btn-action btn-view">
               <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-action btn-edit">
+            </a>
+            <a href="{% url 'custom_admin:edit_reservation' reservation.pk %}" class="btn-action btn-edit">
               <i class="fas fa-edit"></i>
-            </button>
+            </a>
           </td>
+          
         </tr>
         {% endfor %}
       {% else %}
@@ -138,15 +140,16 @@
           <td>#{{ event.id }}</td>
           <td>{{ event.customer.full_name }}</td>
           <td>{{ event.event_type }}</td>
-          <td>{{ event.date|date:"M d" }}</td>
+          <td>{{ event.event_date|date:"M d Y" }}</td>
           <td>
-            <button class="btn-action btn-view">
+            <a href="{% url 'custom_admin:view_event' event.pk %}" class="btn-action btn-view">
               <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-action btn-edit">
+            </a>
+            <a href="{% url 'custom_admin:edit_event' event.pk %}" class="btn-action btn-edit">
               <i class="fas fa-edit"></i>
-            </button>
+            </a>
           </td>
+          
         </tr>
         {% endfor %}
       {% else %}

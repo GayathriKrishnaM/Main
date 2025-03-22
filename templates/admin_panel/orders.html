@@ -6,56 +6,40 @@
 {% block content %}
   <h1>Order Management</h1>
 
-  <!-- Stats Overview -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <h3>Total Orders</h3>
-      <div class="stat-value">{{ total_orders }}</div>
-      <small>{{ pending_orders }} pending</small>
-    </div>
-    <div class="stat-card">
-      <h3>Today's Orders</h3>
-      <div class="stat-value">{{ today_orders }}</div>
-      <small>${{ today_revenue }} revenue</small>
-    </div>
-  </div>
-
   <!-- Orders Table -->
   <div class="data-table">
-    <h2>Recent Orders</h2>
+    <h2> Orders</h2>
     <table>
       <thead>
         <tr>
-          <th>Order ID</th>
+          <th scope="col">S.No</th>
           <th>Customer</th>
           <th>Items</th>
           <th>Total</th>
-          <th>Status</th>
-          <th>Order Time</th>
+          <th>Delivery Status</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for order in orders %}
         <tr>
-          <td>#{{ order.id }}</td>
+          <td>{{ forloop.counter }}</td>
           <td>{{ order.customer.full_name }}</td>
           <td>{{ order.items.count }}</td>
           <td>${{ order.total_amount }}</td>
           <td>
-            <span class="status-badge status-{{ order.status|lower }}">
-              {{ order.status }}
+            <span class="status-badge status-{{ order.delivery_status|lower }}">
+              {{ order.delivery_status }}
             </span>
           </td>
-          <td>{{ order.created_at|date:"M d, H:i" }}</td>
           <td>
-            <button class="btn-action btn-view">
+            <a href="{% url 'custom_admin:view_order' order.pk %}" class="btn-action btn-view">
               <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-action btn-edit">
+            </a>
+            <a href="{% url 'custom_admin:edit_order' order.pk %}" class="btn-action btn-edit">
               <i class="fas fa-edit"></i>
-            </button>
-          </td>
+            </a>
+          </td>          
         </tr>
         {% endfor %}
       </tbody>

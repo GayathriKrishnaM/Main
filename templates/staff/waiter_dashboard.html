@@ -1,4 +1,4 @@
-{% extends 'staff_base.html' %}
+{% extends 'staff/staff_base.html' %}
 
 {% block title %}Waiter Dashboard{% endblock %}
 
@@ -7,12 +7,11 @@
 
 <h2>Today's Reservations</h2>
 {% if reservations %}
-  <table>
-    <thead>
+<table class="styled-table">
+  <thead>
       <tr>
         <th>Reservation ID</th>
         <th>Customer</th>
-        <th>Table</th>
         <th>Time</th>
         <th>Guest Count</th>
         <th>Pre-orders</th>
@@ -24,27 +23,22 @@
       <tr>
         <td>{{ reservation.id }}</td>
         <td>{{ reservation.customer.full_name }}</td>
-        <td>{{ reservation.table_id }}</td>
         <td>{{ reservation.time }}</td>
         <td>{{ reservation.guest_count }}</td>
         <td>
-          {% if reservation.preorders.exists %}
+          {% if reservation.preorders %}
             <ul>
               {% for preorder in reservation.preorders.all %}
-              <li>{{ preorder.quantity }} x {{ preorder.menu_variant.menu.name }} - {{ preorder.menu_variant.variant_name }}</li>
+              <li>{{ preorder.quantity }} {{ preorder.menu.name }}</li>
               {% endfor %}
             </ul>
           {% else %}
             None
           {% endif %}
         </td>
-        <td>
-          <form action="{% url 'update_reservation_status' reservation.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="booking_status" value="completed">
-            <button type="submit">Mark as Completed</button>
-          </form>
-        </td>
+        <td><a href="{% url 'view_reservations' reservation.id %}" class="btn-action
+          btn-view">
+          <i class="fas fa-eye"></i>
       </tr>
       {% endfor %}
     </tbody>
@@ -52,4 +46,49 @@
 {% else %}
   <p>No reservations for today.</p>
 {% endif %}
+<style>
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+
+  .styled-table thead tr {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    text-align: left;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    border: 1px solid #dddddd;
+    padding: 12px 15px;
+  }
+
+  .styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+  }
+
+  .styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+  }
+
+  .styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid var(--primary-color);
+  }
+
+  .styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+
+  .styled-table a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .styled-table a:hover {
+    text-decoration: underline;
+  }
+</style>
 {% endblock %}

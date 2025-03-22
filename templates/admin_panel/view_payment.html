@@ -1,0 +1,28 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}View Payment | Admin Panel{% endblock %}
+
+{% block content %}
+<h1>Payments</h1>
+<table>
+    <tr>
+        <th scope="col">S.No</th>
+        <th>Customer</th>
+        <th>Service</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Status</th>
+    </tr>
+    {% for Payment in payments %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ Payment.customer.full_name }}</td>
+        <td>{{ Payment.service_type }}</td>
+        <td>{{ Payment.amount }}</td>
+        <td>{{ Payment.date }}</td> 
+        <td>{{ Payment.get_status_display }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

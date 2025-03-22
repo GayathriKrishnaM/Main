@@ -11,10 +11,10 @@
             <th>Item</th>
             <th>Price</th>
             <th>Quantity</th>
-            <th>Update</th>
+            <th>Amount</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="cart-items">
           {% for key, item in cart.items %}
           <tr style="border-bottom: 1px solid #ccc;">
             <td>
@@ -25,19 +25,14 @@
             </td>
             <td>₹{{ item.price }}</td>
             <td>
-              <form action="{% url 'update_cart' menu_id=key %}" method="post" style="display: inline;">
-                {% csrf_token %}
-                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" style="width: 60px;">
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="0" style="width: 60px;" data-price="{{ item.price }}" data-key="{{ key }}" onchange="updateQuantity(this)">
             </td>
-            <td>
-                <button type="submit" class="btn btn-primary btn-sm">Update</button>
-              </form>
-            </td>
+            <td class="item-total">₹{{ item.total_price|floatformat:2 }}</td>
           </tr>
           {% endfor %}
           <tr>
-            <td colspan="5" style="text-align: right; padding:2rem"><strong>Total:</strong></td>
-            <td colspan="5">₹{{ total|floatformat:2 }}</td>
+            <td colspan="3" style="text-align: right; padding:2rem"><strong>Total:</strong></td>
+            <td id="cart-total">₹{{ total|floatformat:2 }}</td>
           </tr>
         </tbody>
       </table>
@@ -49,4 +44,97 @@
     {% endif %}
   </div>
 </section>
+
+<script>
+  // Update a single item's total and remove its row if quantity is 0.
+  function updateQuantity(input, updateServerFlag = true) {
+    var price = parseFloat(input.getAttribute('data-price'));
+    var quantity = parseInt(input.value);
+    
+    // If quantity is zero, remove the row.
+    if (quantity === 0) {
+      var row = input.closest('tr');
+      if (row) {
+        row.remove();
+      }
+      if (updateServerFlag) {
+        updateServer(input.getAttribute('data-key'), quantity);
+      }
+      updateCartTotal(); // Recalculate totals and check for an empty cart.
+      return;
+    }
+    
+    // Otherwise, update the item total.
+    var totalCell = input.parentElement.nextElementSibling;
+    var itemTotal = price * quantity;
+    totalCell.textContent = '₹' + itemTotal.toFixed(2);
+    updateCartTotal();
+    if (updateServerFlag) {
+      updateServer(input.getAttribute('data-key'), quantity);
+    }
+  }
+
+  // Recalculate the overall cart total and check if the cart is empty.
+  function updateCartTotal() {
+    var total = 0;
+    var itemTotals = document.querySelectorAll('#cart-items .item-total');
+    itemTotals.forEach(function(item) {
+      total += parseFloat(item.textContent.replace('₹', '')) || 0;
+    });
+    var totalCell = document.getElementById('cart-total');
+    if (totalCell) {
+      totalCell.textContent = '₹' + total.toFixed(2);
+    }
+    
+    // If no quantity inputs remain, then the cart is empty.
+    var quantityInputs = document.querySelectorAll('input[name="quantity"]');
+    if (quantityInputs.length === 0) {
+      // Remove the table and checkout button.
+      var table = document.querySelector('.table');
+      if (table) {
+        table.remove();
+      }
+      var checkoutDiv = document.querySelector('a.btn.btn-success');
+      if (checkoutDiv && checkoutDiv.parentElement) {
+        checkoutDiv.parentElement.remove();
+      }
+      // Append a "Your cart is empty." message if not already present.
+      if (!document.querySelector('#empty-cart-message')) {
+        var emptyMessage = document.createElement('p');
+        emptyMessage.setAttribute('id', 'empty-cart-message');
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.textContent = 'Your cart is empty.';
+        // Append the message to the container.
+        var container = document.querySelector('.container');
+        if (container) {
+          container.appendChild(emptyMessage);
+        }
+      }
+    }
+  }
+
+  // Send the updated quantity to the server.
+  function updateServer(key, quantity) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url "update_cart" 0 %}'.replace('0', key), true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+    xhr.send('quantity=' + quantity);
+  }
+
+  // Recalculate all item totals on page load (without triggering server calls).
+  function recalcCart() {
+    document.querySelectorAll('input[name="quantity"]').forEach(function(input) {
+      updateQuantity(input, false);
+    });
+  }
+
+  // Ensure totals are updated on initial page load and when navigating back.
+  document.addEventListener('DOMContentLoaded', recalcCart);
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      recalcCart();
+    }
+  });
+</script>
 {% endblock %}

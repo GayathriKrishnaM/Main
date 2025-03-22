@@ -1,11 +1,11 @@
-{% extends 'staff_base.html' %}
+{% extends 'staff/staff_base.html' %}
 
 {% block title %}Chef Dashboard{% endblock %}
 
 {% block content %}
 <h1>Welcome, Chef {{ staff.full_name }}!</h1>
 
-<h2>Pending Orders</h2>
+<h2> Orders</h2>
 {% if pending_orders %}
   <table>
     <thead>
@@ -14,30 +14,27 @@
         <th>Customer</th>
         <th>Items</th>
         <th>Date & Time</th>
-        <th>Action</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
-      {% for order in pending_orders %}
+      {% for order in pending_orders|dictsortreversed:"date_time" %}
+      {% if order.delivery_status|lower != "delivered" %}
       <tr>
         <td>{{ order.id }}</td>
         <td>{{ order.customer.full_name }}</td>
         <td>
           <ul>
             {% for item in order.items.all %}
-            <li>{{ item.quantity }} x {{ item.menu_variant.menu.name }} - {{ item.menu_variant.variant_name }}</li>
+            <li>{{ item.quantity }}  {{ item.menu.name }}</li>
             {% endfor %}
           </ul>
         </td>
         <td>{{ order.date_time }}</td>
-        <td>
-          <form action="{% url 'update_order_status' order.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="order_status" value="preparing">
-            <button type="submit">Start Preparing</button>
-          </form>
-        </td>
+        <td>{{ order.get_delivery_status_display }}</td>
+
       </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>
@@ -61,7 +58,7 @@
       <tr>
         <td>{{ preorder.reservation.id }}</td>
         <td>{{ preorder.reservation.customer.full_name }}</td>
-        <td>{{ preorder.quantity }} x {{ preorder.menu_variant.menu.name }} - {{ preorder.menu_variant.variant_name }}</td>
+        <td>{{ preorder.quantity }} {{ preorder.menu.name }}</td>
         <td>{{ preorder.reservation.date }} {{ preorder.reservation.time }}</td>
       </tr>
       {% endfor %}
@@ -104,4 +101,49 @@
 {% else %}
   <p>No upcoming events.</p>
 {% endif %}
+<style>
+/* General Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+  text-align: left;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Header */
+thead {
+  background-color: #c19a6b;
+  color: #fff;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Alternate Row Coloring */
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover Effect */
+tbody tr:hover {
+  background-color: #f1e4d9;
+  transition: 0.3s ease-in-out;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+</style>
 {% endblock %}

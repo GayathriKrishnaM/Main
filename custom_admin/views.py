@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from management.models import Customer, Category, Menu, TableReservation, EventPlan, Staff, Order, Inventory
+from management.models import Customer, Category, Menu, TableReservation, EventPlan, Staff, Order, Inventory, Preorder, Feedback, Notification, Payment
 from django.db import IntegrityError
 from staff.forms import StaffProfileForm  # Import the form from the staff app
 from django.db.models import Sum
@@ -97,71 +97,160 @@ def admin_change_password(request):
         form = PasswordChangeForm(user=request.user)
     return render(request, 'admin_panel/admin_change_password.html', {'form': form})
 
-from datetime import timedelta
-from decimal import Decimal
+# from datetime import timedelta
+# from decimal import Decimal
+# from django.db.models import Sum
+# from django.utils import timezone
+# from django.shortcuts import render
+
+# @admin_required
+# def admin_dashboard(request):
+#     # Calculate today's date range
+#     today = timezone.now().date()
+#     month_start = today.replace(day=1)
+    
+#     # Today's revenue and orders
+#     daily_data = Order.objects.filter(date_time__date=today)
+#     daily_orders = daily_data.count()
+    
+#     # Monthly revenue and orders
+#     monthly_data = Order.objects.filter(date_time__date__gte=month_start)
+#     monthly_orders = monthly_data.count()
+
+#     # Revenue from events and table reservations
+#     event_revenue = EventPlan.objects.filter(event_date__gte=month_start).aggregate(total=Sum('advance_amount'))['total'] or 0
+#     reservation_revenue = TableReservation.objects.filter(date__gte=month_start).aggregate(total=Sum('booking_fee'))['total'] or 0
+#     order_revenue = Order.objects.filter(date_time__date__gte=month_start).aggregate(total=Sum('total_amount'))['total'] or 0
+    
+#     # Total revenue
+#     monthly_revenue = order_revenue + event_revenue + reservation_revenue
+
+#     # Get filtered data for today
+#     daily_order = Order.objects.filter(date_time__date=today)
+#     daily_event = EventPlan.objects.filter(booking_date_time__date=today)
+#     daily_reservation = TableReservation.objects.filter(date_time__date=today)
+
+#     # Calculate revenue
+#     daily_revenue = (
+#         daily_order.aggregate(total=Sum('total_amount'))['total'] or 0
+#     ) + (
+#         daily_event.aggregate(total=Sum('advance_amount'))['total'] or 0
+#     ) + (
+#         daily_reservation.aggregate(total=Sum('booking_fee'))['total'] or 0
+#     )
+
+#     # Active staff count
+#     active_staff = Staff.objects.filter(user__is_active=True).count()
+#     available_staff = Staff.objects.filter(user__is_active=True).count()
+    
+#     # Recent orders
+#     orders = Order.objects.all().order_by('-date_time')[:10]
+#     reservations = TableReservation.objects.all().order_by('-date')[:10]
+#     events = EventPlan.objects.all().order_by('-event_date')[:10]
+    
+#     # Chart data (example)
+#     last_seven_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+#     chart_labels = [day.strftime('%b %d') for day in last_seven_days]
+#     chart_data = []
+#     for day in last_seven_days:
+#         total = Order.objects.filter(date_time__date=day).aggregate(total=Sum('total_amount'))['total'] or 0
+#         chart_data.append(float(total))
+    
+#     context = {
+#         'daily_revenue': daily_revenue,
+#         'daily_orders': daily_orders,
+#         'monthly_revenue': monthly_revenue,
+#         'monthly_orders': monthly_orders,
+#         'order_revenue': order_revenue,
+#         'event_revenue': event_revenue,
+#         'reservation_revenue': reservation_revenue,
+#         'active_staff': active_staff,
+#         'available_staff': available_staff,
+#         'orders': orders,
+#         'reservations': reservations,
+#         'events': events,
+#         'chart_labels': chart_labels,
+#         'chart_data': chart_data,
+#     }
+#     return render(request, 'admin_panel/dashboard.html', context)
+from datetime import datetime, timedelta
+from django.utils.timezone import make_aware, now
 from django.db.models import Sum
-from django.utils import timezone
 from django.shortcuts import render
+from management.models import Order, EventPlan, TableReservation, Staff  # Ensure models are imported
 
 @admin_required
 def admin_dashboard(request):
-    # Calculate today's date range
-    today = timezone.now().date()
-    month_start = today.replace(day=1)
+    # Get the current time and date
+    today = now().date()
     
-    # Today's revenue and orders
-    daily_data = Order.objects.filter(date_time__date=today)
-    daily_revenue = daily_data.aggregate(total=Sum('total_amount'))['total'] or 0
-    daily_orders = daily_data.count()
-    
-    # Monthly revenue and orders
-    monthly_data = Order.objects.filter(date_time__date__gte=month_start)
-    monthly_revenue = monthly_data.aggregate(total=Sum('total_amount'))['total'] or 0
-    monthly_orders = monthly_data.count()
+    # Get start of the month (timezone-aware)
+    month_start = make_aware(datetime.combine(today.replace(day=1), datetime.min.time()))
 
-    # Revenue from events and table reservations
-    event_revenue = EventPlan.objects.filter(event_date__gte=month_start).aggregate(total=Sum('amount'))['total'] or 0
-    reservation_revenue = TableReservation.objects.filter(date__gte=month_start).aggregate(total=Sum('booking_fee'))['total'] or 0
-    order_revenue = Order.objects.filter(date_time__date__gte=month_start).aggregate(total=Sum('total_amount'))['total'] or 0
+    # Get start of today (timezone-aware)
+    today_start = make_aware(datetime.combine(today, datetime.min.time()))
     
-    # Total revenue
-    total_revenue = monthly_revenue + event_revenue + reservation_revenue
+    # Get today's orders and revenue
+    daily_orders = Order.objects.filter(date_time__gte=today_start).count()
+    daily_revenue = (
+        Order.objects.filter(date_time__gte=today_start).aggregate(total=Sum('total_amount'))['total'] or 0
+    ) + (
+        EventPlan.objects.filter(booking_date_time__gte=today_start).aggregate(total=Sum('advance_amount'))['total'] or 0
+    ) + (
+        TableReservation.objects.filter(date_time__gte=today_start).aggregate(total=Sum('booking_fee'))['total'] or 0
+    )
+
+    # Get monthly orders and revenue
+    monthly_orders = Order.objects.filter(date_time__gte=month_start).count()
+    order_revenue = Order.objects.filter(date_time__gte=month_start).aggregate(total=Sum('total_amount'))['total'] or 0
+    event_revenue = EventPlan.objects.filter(event_date__gte=month_start).aggregate(total=Sum('advance_amount'))['total'] or 0
+    reservation_revenue = TableReservation.objects.filter(date__gte=month_start).aggregate(total=Sum('booking_fee'))['total'] or 0
+    monthly_revenue = order_revenue + event_revenue + reservation_revenue
 
     # Active staff count
     active_staff = Staff.objects.filter(user__is_active=True).count()
-    available_staff = Staff.objects.filter(user__is_active=True).count()
-    
-    # Recent orders
-    orders = Order.objects.all().order_by('-date_time')[:10]
-    reservations = TableReservation.objects.all().order_by('-date')[:10]
-    events = EventPlan.objects.all().order_by('-event_date')[:10]
-    
-    # Chart data (example)
+
+    # Recent orders, reservations, and events
+    orders = Order.objects.select_related('customer', 'staff').order_by('-date_time')[:10]
+    reservations = TableReservation.objects.order_by('-date')[:10]
+    events = EventPlan.objects.order_by('-event_date')[:10]
+
+    # Chart data for the last 7 days
+
+
+    # Generate last 7 days
     last_seven_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
     chart_labels = [day.strftime('%b %d') for day in last_seven_days]
+
+    # Fetch revenue data with a proper date range
     chart_data = []
     for day in last_seven_days:
-        total = Order.objects.filter(date_time__date=day).aggregate(total=Sum('total_amount'))['total'] or 0
-        chart_data.append(float(total))
-    
+        start_of_day = make_aware(datetime.combine(day, datetime.min.time()))  # 00:00:00
+        end_of_day = make_aware(datetime.combine(day, datetime.max.time()))  # 23:59:59
+
+        total_revenue = Order.objects.filter(date_time__range=(start_of_day, end_of_day)).aggregate(total=Sum('total_amount'))['total'] or 0
+        chart_data.append(float(total_revenue))
+
+
+    # Context for template
     context = {
         'daily_revenue': daily_revenue,
         'daily_orders': daily_orders,
         'monthly_revenue': monthly_revenue,
         'monthly_orders': monthly_orders,
-        order_revenue: 'order_revenue',
+        'order_revenue': order_revenue,
         'event_revenue': event_revenue,
         'reservation_revenue': reservation_revenue,
-        'total_revenue': total_revenue,
         'active_staff': active_staff,
-        'available_staff': available_staff,
         'orders': orders,
         'reservations': reservations,
         'events': events,
         'chart_labels': chart_labels,
         'chart_data': chart_data,
     }
+    
     return render(request, 'admin_panel/dashboard.html', context)
+
 
 from django.shortcuts import render, get_object_or_404, redirect
 from management.models import Customer
@@ -420,3 +509,66 @@ def delete_menu(request, pk):
         menu.delete()
         return redirect('custom_admin:menu_list')
     return render(request, 'admin_panel/menu_list.html', {'menu': menu})
+
+@admin_required
+def view_order(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    return render(request, 'admin_panel/view_order.html', {'order': order})
+
+@admin_required
+def edit_order(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == 'POST':
+        order.order_status = request.POST.get('order_status')
+        order.payment_status = request.POST.get('payment_status')
+        order.delivery_status = request.POST.get('delivery_status')
+        order.save()
+        return redirect('custom_admin:view_order', pk=pk)
+    return render(request, 'admin_panel/edit_order.html', {'order': order})
+
+@admin_required
+def view_reservation(request, pk):
+    reservation = get_object_or_404(TableReservation, id=pk)
+    preorders = Preorder.objects.filter(reservation=reservation)
+    return render(request, 'admin_panel/view_reservation.html', {'reservation': reservation, 'preorders': preorders})
+
+@admin_required
+def edit_reservation(request, pk):
+    reservation = get_object_or_404(TableReservation, pk=pk)
+    if request.method == 'POST':
+        reservation.booking_status = request.POST.get('booking_status')
+        reservation.payment_status = request.POST.get('payment_status')
+        reservation.save()
+        return redirect('custom_admin:view_reservation', pk=pk)
+    return render(request, 'admin_panel/edit_reservation.html', {'reservation': reservation})
+
+@admin_required
+def view_event(request, pk):
+    event = get_object_or_404(EventPlan, pk=pk)
+    return render(request, 'admin_panel/view_event.html', {'event': event})
+
+@admin_required
+def edit_event(request, pk):
+    event = get_object_or_404(EventPlan, pk=pk)
+    if request.method == 'POST':
+        event.event_type = request.POST.get('event_type')
+        event.status = request.POST.get('status')
+        event.payment_status = request.POST.get('payment_status')
+        event.save()
+        return redirect('custom_admin:view_event', pk=pk)
+    return render(request, 'admin_panel/edit_event.html', {'event': event})
+
+@admin_required
+def view_feedback(request):
+    feedbacks = Feedback.objects.all()
+    return render(request, 'admin_panel/view_feedback.html', {'feedbacks': feedbacks})
+
+@admin_required
+def view_notification(request):
+    notifications = Notification.objects.all()
+    return render(request, 'admin_panel/view_notification.html', {'notifications': notifications})
+
+@admin_required
+def view_payment(request):
+    payments = Payment.objects.all()
+    return render(request, 'admin_panel/view_payment.html', {'payments': payments})

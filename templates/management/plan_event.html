@@ -38,20 +38,36 @@
     <input type="text" name="other_event_type">
   </div>
 
-  <div class="form-group" style="display: flex; align-items: center; margin-bottom: 10px;">
-    <label for="order">Select Food Items</label>
-    <div class="menu-list" style="margin-left: 50px; padding: 2px; margin-bottom: 10px;">
+  <div id="category-section">
+    <label for="category">Select Category</label>
+    <select id="category" name="category" onchange="filterMenuItems(this.value)">
+      <option value="">Select a Category</option>
+      {% for category in categories %}
+      <option value="{{ category.id }}">{{ category.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="menu-section" style="display: none;">
+    <label for="menu">Menu Items</label>
+    <div class="menu-list" id="menu-items">
       {% for menu in menus %}
-      <div class="menu-item">
-        <input type="checkbox" name="menu_items" value="{{ menu.id }}" data-price="{{ menu.price }}" onchange="calculateTotal()"> 
+      <div class="menu-item" data-category="{{ menu.category.id }}" style="display:none;">
+        <input type="checkbox" name="menu_items" value="{{ menu.id }}" data-price="{{ menu.price }}" onchange="calculateTotal(); displaySelectedItems();">
         <span>{{ menu.name }} - ₹{{ menu.price }}</span>
+        <input type="number" name="quantity_{{ menu.id }}" min="1" value="1" style="width: 60px; margin-left: 10px;" onchange="calculateTotal()">
       </div>
       {% endfor %}
     </div>
   </div>
 
+  <div id="selected-items-section" style="display: none;">
+    <label>Selected Menu Items</label>
+    <div id="selected-items-list"></div>
+  </div>
+
   <div>
-    <label for="custom_dish">Custom Dish (optional)</label>
+    <label for="custom_dish">Custom Dish & Suggestions(if any)</label>
     <input type="text" name="custom_dish">
   </div>
   <div>
@@ -60,22 +76,41 @@
     <small>Note: The amount is subjected to change.</small>
   </div>
   <div>
-    <label for="advance_amount">Advance Amount </label>
+    <label for="advance_amount">Advance Amount</label>
     <input type="number" id="advance_amount" name="advance_amount" readonly>
   </div>
-  <div style="display: flex; align-items: center; margin-bottom: 10px;">    
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
     <label for="catering_service">Include Catering Service (optional)</label>
-    <input type="checkbox" name="catering_service" value="yes">
+    <input type="checkbox" name="catering_service" value="yes" id="catering_service">
+  </div>
+  <small>Note: Catering amount is to be paid after event.</small>
+  <div id="catering_options" style="display: none; margin-bottom: 10px;">
+      <label for="counter_design">Counter Design</label>
+      <select name="counter_design" id="counter_design" onchange="calculateCateringAmount()">
+          <option value="">Select Counter Design</option>
+          <option value="modern">Modern</option>
+          <option value="traditional">Traditional</option>
+          <option value="rustic">Rustic</option>
+      </select>
+
+      <label for="plate_type">Plate Type</label>
+      <select name="plate_type" id="plate_type" onchange="calculateCateringAmount()">
+          <option value="">Select Plate Type</option>
+          <option value="glass">Glass</option>
+          <option value="silver">Silver</option>
+          <option value="disposable">Disposable</option>
+      </select>
+
+      <label for="catering_amount">Catering Amount</label>
+      <input type="text" id="catering_amount" name="catering_amount" readonly>
   </div>
   <button type="submit">Submit Event Plan</button>
 </form>
 
 <style>
-/* Add this CSS to your static CSS file or within <style> tags */
-
 h1 {
   text-align: center;
-  margin-top: 5rem; /* Adjust this value to move the heading further down */
+  margin-top: 5rem;
 }
 
 h3 {
@@ -116,7 +151,7 @@ button {
 }
 
 button:hover {
-  background-color: #a87f52; /* Adjusted to match hover color */
+  background-color: #a87f52;
 }
 
 .alert {
@@ -143,33 +178,108 @@ button:hover {
 </style>
 
 <script>
-function toggleOtherEventType(value) {
-  var otherEventTypeDiv = document.getElementById("other-event-type");
-  if (value === "others") {
-    otherEventTypeDiv.style.display = "block";
-  } else {
-    otherEventTypeDiv.style.display = "none";
-  }
+  document.addEventListener("DOMContentLoaded", function() {
+    let dateInput = document.getElementById("event_date");
+    
+    if (dateInput) {
+        let today = new Date();
+        today.setDate(today.getDate() + 5); // Set minimum date to 5 days from today
+        let minDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
+        dateInput.setAttribute("min", minDate);
+    }
+  });
+  document.getElementById('catering_service').addEventListener('change', function () {
+    var cateringOptions = document.getElementById('catering_options');
+    if (this.checked) {
+        cateringOptions.style.display = 'block';
+    } else {
+        cateringOptions.style.display = 'none';
+    }
+});
+
+function calculateCateringAmount() {
+    var counterDesign = document.getElementById('counter_design').value;
+    var plateType = document.getElementById('plate_type').value;
+
+    var counterDesignCost = {
+        'modern': 4000,
+        'traditional': 5000,
+        'rustic': 4000,
+    };
+
+    var plateTypeCost = {
+        'glass': 2000,
+        'ceramic': 5000,
+        'disposable': 1000,
+    };
+
+    var cateringAmount = 0;
+    if (counterDesignCost[counterDesign]) {
+        cateringAmount += counterDesignCost[counterDesign];
+    }
+    if (plateTypeCost[plateType]) {
+        cateringAmount += plateTypeCost[plateType];
+    }
+
+    document.getElementById('catering_amount').value = cateringAmount.toFixed(2);
 }
 
-function calculateTotal() {
-  var guestCount = parseInt(document.getElementById('guest_count').value) || 0;
-  var menuItems = document.getElementsByName('menu_items');
-  
-  var totalAmount = 0;
+  function filterMenuItems(categoryId) {
+    var menuItems = document.querySelectorAll('.menu-item');
+    var menuSection = document.getElementById("menu-section");
+    var hasItems = false;
+    menuItems.forEach(item => {
+      if (categoryId === '' || item.getAttribute('data-category') === categoryId) {
+        item.style.display = 'flex';
+        hasItems = true;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+    menuSection.style.display = hasItems ? 'block' : 'none';
+  }
 
-  for (var i = 0; i < menuItems.length; i++) {
-    if (menuItems[i].checked) {
-      var price = parseFloat(menuItems[i].dataset.price);
-      totalAmount += price * guestCount;
+  function toggleOtherEventType(value) {
+    var otherEventTypeDiv = document.getElementById("other-event-type");
+    if (value === "others") {
+      otherEventTypeDiv.style.display = "block";
+    } else {
+      otherEventTypeDiv.style.display = "none";
     }
   }
 
-  totalAmount = totalAmount.toFixed(2);  // Ensure it's in decimal format
-  
-  document.getElementById('total_amount').value = totalAmount;
-  document.getElementById('advance_amount').value = (totalAmount * 0.30).toFixed(2);
-}
+  function calculateTotal() {
+    var guestCount = parseInt(document.getElementById('guest_count').value) || 0;
+    var menuItems = document.querySelectorAll('input[name="menu_items"]:checked');
+    var totalAmount = 0;
+    menuItems.forEach(item => {
+      var price = parseFloat(item.getAttribute('data-price'));
+      totalAmount += price * guestCount;
+    });
+    document.getElementById('total_amount').value = totalAmount.toFixed(2);
+    document.getElementById('advance_amount').value = (totalAmount * 0.30).toFixed(2);
+  }
+
+  function displaySelectedItems() {
+    var selectedItemsSection = document.getElementById("selected-items-section");
+    var selectedItemsList = document.getElementById("selected-items-list");
+    var menuItems = document.querySelectorAll('input[name="menu_items"]:checked');
+    selectedItemsList.innerHTML = ''; // Clear previous selected items
+    menuItems.forEach(item => {
+      var name = item.nextElementSibling.textContent.split(' - ')[0];
+      selectedItemsList.innerHTML += '<div>' + name + '</div>';
+    });
+    selectedItemsSection.style.display = menuItems.length > 0 ? 'block' : 'none';
+  }
+
+  document.addEventListener('change', function(event) {
+    if (event.target.name === 'menu_items' || event.target.id === 'guest_count') {
+      calculateTotal();
+    }
+    if (event.target.name === 'menu_items') {
+      displaySelectedItems();
+    }
+  });
 </script>
 
 {% endblock %}

@@ -1,0 +1,45 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}Edit Event | Admin Panel{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Edit Event #{{ event.id }}</h1>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="event_type">Event Type</label>
+      <select id="event_type" name="event_type" class="form-control">
+        {% for type, display in event.EVENT_STATUS_CHOICES %}
+          <option value="{{ type }}" {% if event.event_type == type %}selected{% endif %}>
+            {{ display }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select id="status" name="status" class="form-control">
+        {% for status, display in event.EVENT_STATUS_CHOICES %}
+          <option value="{{ status }}" {% if event.status == status %}selected{% endif %}>
+            {{ display }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="payment_status">Payment Status</label>
+      <select id="payment_status" name="payment_status" class="form-control">
+        {% for status, display in event.PAYMENT_STATUS_CHOICES %}
+          <option value="{{ status }}" {% if event.payment_status == status %}selected{% endif %}>
+            {{ display }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+{% endblock %}

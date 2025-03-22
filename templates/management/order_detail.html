@@ -5,7 +5,7 @@
 <div class="order-detail">
     <p><strong>Order Number:</strong> {{ order.id }}</p>
     <p><strong>Date:</strong> {{ order.date_time|date:"Y-m-d H:i" }}</p>
-    <p><strong>Status:</strong> {{ order.order_status|capfirst }}</p>
+    <p><strong>Delivery Status:</strong> {{ order.delivery_status|capfirst }}</p>
     <p><strong>Total Amount:</strong> ₹{{ order.total_amount|floatformat:2 }}</p>
     <p><strong>Total Discount:</strong> ₹{{ order.total_discount|floatformat:2 }}</p>
 
@@ -15,8 +15,7 @@
             <div class="item">
                 <p><strong>{{ item.menu.name }}</strong></p>
                 <p>Quantity: {{ item.quantity }}</p>
-                <p>Price: ₹{{ item.price|floatformat:2 }}</p>
-                <p>Subtotal: ₹{{ item.price|floatformat:2 }}</p>
+                <p>Unit Price: ₹{{ item.price|floatformat:2 }}</p>
             </div>
         {% endfor %}
     </div>

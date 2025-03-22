@@ -1,0 +1,86 @@
+{% extends 'staff/staff_base.html' %}
+
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+<h2>Event Bookings</h2>
+{% if event %}
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Customer</th>
+        <th>Event Date</th>
+        <th>Guest Count</th>
+        <th>Amount</th>
+        <th>Payment Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in event %}
+      <tr>
+        <td>{{ event.id }}</td>
+        <td>{{ event.customer.full_name }}</td>
+        <td>{{ event.event_date }}</td>
+        <td>{{ event.guest_count }}</td>
+        <td>{{ event.amount }}</td>
+        <td>{{ event.get_payment_status_display }}</td>
+        <td><a href="{% url 'view_event_plan' event.id %}" class="btn-action btn-view">
+          <i class="fas fa-eye"></i>
+        </a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No event bookings found.</p>
+{% endif %}
+<style>
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+  
+    .styled-table thead tr {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      text-align: left;
+    }
+  
+    .styled-table th,
+    .styled-table td {
+      border: 1px solid #dddddd;
+      padding: 12px 15px;
+    }
+  
+    .styled-table tbody tr {
+      border-bottom: 1px solid #dddddd;
+    }
+  
+    .styled-table tbody tr:nth-of-type(even) {
+      background-color: #f3f3f3;
+    }
+  
+    .styled-table tbody tr:last-of-type {
+      border-bottom: 2px solid var(--primary-color);
+    }
+  
+    .styled-table tbody tr.active-row {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+  
+    .styled-table a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+  
+    .styled-table a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  
+  {% endblock %}
+  

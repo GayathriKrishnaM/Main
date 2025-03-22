@@ -1,7 +1,6 @@
 {% extends "management/base.html" %}
 
 {% block content %}
-
 <div class="content-wrapper" style="display: flex;">
 
   <!-- Sidebar -->
@@ -26,9 +25,9 @@
   </aside>
 
   <!-- Menu Section -->
-  <section class="menu-section" style="flex: 1; padding: 2rem;">
+  <section class="menu-section" style="flex: 1; padding: 3rem;">
     <div class="container">
-      <h1 style="text-align: center; margin-bottom: 2rem;">Our Menu</h1>
+      <h1 style="text-align: center; padding: 2rem; margin-bottom: 1rem;">Our Menu</h1>
 
       {% if menu_items %}
         <div class="menu-items" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center;">
@@ -49,26 +48,34 @@
               {% if item.description %}
                 <p>{{ item.description }}</p>
               {% endif %}
-              {% if item.discount %}
-                <p><strong>Discount:</strong> {{ item.discount }}%</p>
-              {% endif %}
-              {% if item.inventory %}
-                <p><strong>Quantity:</strong> {{ item.inventory.quantity }}</p>
-                <p><strong>Expiry Date:</strong> {{ item.inventory.expiry_date }}</p>
+
+              {% with inventory=item.inventories.all.0 %}
+                {% if inventory %}
+                  <p><strong> Quantity:</strong> {{ inventory.quantity }}</p>
+                  <div style="margin-top: 2rem;">
+                    <!-- Order Now Form -->
+                    <form action="{% url 'order_now' menu_id=item.id %}" method="post" class="order-form" style="display: inline-block; margin-left: 1rem;">
+                      {% csrf_token %}
+                      <input type="number" 
+                             name="quantity" 
+                             value="1" 
+                             min="1" 
+                             max="{{ inventory.quantity }}"
+                             data-max="{{ inventory.quantity }}"
+                             style="width: 50px; text-align: center;">
+                      <button type="submit" class="btn btn-success">Order Now</button>
+                    </form>
+                    <!-- Add to Cart Form -->
+                    <form action="{% url 'add_to_cart' menu_id=item.id %}" method="post" style="display: inline-block;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
+                  </div>
+                {% else %}
+                  <p>Not available</p>
                 {% endif %}
-                <div style="margin-top: 2rem;">
-                <!-- Button to add item to cart -->
-                <form action="{% url 'add_to_cart' menu_id=item.id %}" method="post" style="display: inline-block;">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-primary">Add to Cart</button>
-                </form>
-                
-                <!-- Button to order immediately (redirects to checkout) -->
-                <form action="{% url 'order_now' menu_id=item.id %}" method="post" style="display: inline-block; margin-left: 1rem;">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-success">Order Now</button>
-                </form>
-              </div>
+              {% endwith %}
+
             </div>
           {% endfor %}
         </div>
@@ -80,4 +87,23 @@
 
 </div>
 
+<!-- JavaScript to validate the order quantity on the client side -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Select all forms with the class "order-form"
+    const orderForms = document.querySelectorAll("form.order-form");
+    orderForms.forEach(form => {
+        form.addEventListener("submit", function(event) {
+            const quantityInput = form.querySelector("input[name='quantity']");
+            const maxQuantity = parseInt(quantityInput.getAttribute("data-max"), 10);
+            const enteredQuantity = parseInt(quantityInput.value, 10);
+            // If the entered quantity exceeds the maximum allowed, show an alert and prevent submission
+            if (enteredQuantity > maxQuantity) {
+                event.preventDefault();
+                alert("The maximum available quantity for this item is " + maxQuantity + ". Please enter a lower quantity.");
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

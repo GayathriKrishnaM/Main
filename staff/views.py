@@ -1,8 +1,8 @@
 # staff/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from management.models import Staff, Catering, EventPlan, Order, Preorder, TableReservation # Import your Staff model
+from management.models import Staff, Catering, EventPlan, Order, Preorder, TableReservation, Customer # Import your Staff model
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from .forms import StaffRegistrationForm, StaffProfileForm
@@ -122,9 +122,50 @@ def waiter_dashboard(request):
 
 @login_required
 def delivery_dashboard(request):
-    orders_for_delivery = Order.objects.filter(order_status='prepared', delivery_status='pending')
+    order = Order.objects.all()
+    return render(request, 'staff/other_dashboard.html', {'order': order})
 
-    context = {
-        'orders_for_delivery': orders_for_delivery,
-    }
-    return render(request, 'staff/other_dashboard.html', context)
+from django.shortcuts import get_object_or_404, render
+
+def view_orders(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'staff/view_orders.html', {'order': order})
+
+def view_reservations(request, reservation_id):
+    reservation = get_object_or_404(TableReservation, id=reservation_id)
+    preorders = Preorder.objects.filter(reservation=reservation)
+    
+    return render(request, 'staff/view_reservations.html', {'reservation': reservation, 'preorders': preorders})
+
+def view_event_plan(request, event_id):
+    event_plans = get_object_or_404(EventPlan, id=event_id)
+    caterings = Catering.objects.filter(event=event_plans)
+    
+    return render(request, 'staff/view_event_plan.html', {'event': event_plans, 'caterings': caterings})
+
+def view_customers(request):
+    customers = Customer.objects.all()
+    return render(request, 'staff/view_customers.html', {'customers': customers})
+
+def all_orders(request):
+    orders = Order.objects.all()
+    return render(request, 'staff/orders.html', {'orders': orders})
+
+def all_reservations(request):
+    reservations = TableReservation.objects.all()
+    return render(request, 'staff/reservations.html', {'reservations': reservations})
+
+def all_events(request):
+    event = EventPlan.objects.all()
+    return render(request, 'staff/events.html', {'event': event}) 
+
+from django.shortcuts import get_object_or_404, redirect
+from management.models import Order
+
+def update_delivery_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == "POST":
+        new_status = request.POST.get("delivery_status")
+        order.delivery_status = new_status
+        order.save()
+    return redirect('staff_dashboard')  # Change to your actual staff dashboard URL name

@@ -3,49 +3,97 @@
 {% block title %}Delivery Dashboard{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ staff.full_name }}!</h1>
+<h1>Welcome {{ staff.full_name }}!</h1>
 
-<h2>Orders Ready for Delivery</h2>
-{% if orders_for_delivery %}
-  <table>
+<h2>Orders for Delivery</h2>
+{% if order %}
+  <table class="styled-table">
     <thead>
       <tr>
         <th>Order ID</th>
         <th>Customer</th>
-        <th>Address</th>
-        <th>Items</th>
-        <th>Contact</th>
+        <th>Date & Time</th>
+        <th>Status</th>
+        <th>Total Amount</th>
         <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      {% for order in orders_for_delivery %}
+      {% for order in order %}
+      {% if order.delivery_status|lower != "delivered" %}
+
       <tr>
         <td>{{ order.id }}</td>
         <td>{{ order.customer.full_name }}</td>
-        <td>
-          {{ order.customer.place }}, {{ order.customer.city }}, {{ order.customer.pin }}
-        </td>
-        <td>
-          <ul>
-            {% for item in order.items.all %}
-            <li>{{ item.quantity }} x {{ item.menu_variant.menu.name }} - {{ item.menu_variant.variant_name }}</li>
+        <td>{{ order.date_time }}</td>
+        <td>{{ order.delivery_status }}</td>
+        <td>{{ order.total_amount }}</td>
+        <td><a href="{% url 'view_orders' order.id %}" class="btn-action btn-view">
+          <i class="fas fa-eye"></i>
+        </a>
+        <form action="{% url 'update_delivery_status' order.id %}" method="post">
+          {% csrf_token %}
+          <select name="delivery_status" class="form-control">
+            {% for status, display in order.DELIVERY_STATUS_CHOICES %}
+              <option value="{{ status }}" {% if order.delivery_status == status %}selected{% endif %}>
+                {{ display }}
+              </option>
             {% endfor %}
-          </ul>
-        </td>
-        <td>{{ order.customer.mobile }}</td>
-        <td>
-          <form action="{% url 'update_delivery_status' order.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delivery_status" value="delivered">
-            <button type="submit">Mark as Delivered</button>
-          </form>
-        </td>
+          </select>
+          <button type="submit" class="btn btn-sm btn-update">Update</button>
+        </form>
+      </td>
       </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>
 {% else %}
-  <p>No orders ready for delivery.</p>
+  <p>No orders found.</p>
 {% endif %}
+<style>
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.styled-table thead tr {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+  border: 1px solid #dddddd;
+  padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.styled-table tbody tr.active-row {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.styled-table a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.styled-table a:hover {
+  text-decoration: underline;
+}
+</style>
 {% endblock %}

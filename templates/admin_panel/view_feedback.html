@@ -1,0 +1,32 @@
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Feedback</title>
+</head>
+<body>
+    <h1>Feedback</h1>
+    <table>
+        <tr>
+            <th scope="col">S.No</th>
+            <th>Date & Time</th>
+            <th>Customer</th>
+            <th>Rating</th>
+            <th>Comments</th>
+        </tr>
+        {% for feedback in feedbacks %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ feedback.date }}</td>
+            <td>{{ feedback.customer.full_name }}</td>
+            <td>{{ feedback.rating }}</td>
+            <td>{{ feedback.comments }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+{% endblock %}

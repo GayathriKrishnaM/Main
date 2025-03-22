@@ -1,0 +1,86 @@
+{% extends 'staff/staff_base.html' %}
+
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+<h2>All Reservations</h2>
+{% if reservations %}
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Reservation ID</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Guest Count</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reservation in reservations %}
+      <tr>
+        <td>{{ reservation.id }}</td>
+        <td>{{ reservation.customer.full_name }}</td>
+        <td>{{ reservation.date }}</td>
+        <td>{{ reservation.time }}</td>
+        <td>{{ reservation.get_booking_status_display }}</td>
+        <td>{{ reservation.guest_count }}</td>
+        <td><a href="{% url 'view_reservations' reservation.id %}" class="btn-action btn-view">
+          <i class="fas fa-eye"></i>
+        </a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No reservations found.</p>
+{% endif %}
+<style>
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+  
+    .styled-table thead tr {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      text-align: left;
+    }
+  
+    .styled-table th,
+    .styled-table td {
+      border: 1px solid #dddddd;
+      padding: 12px 15px;
+    }
+  
+    .styled-table tbody tr {
+      border-bottom: 1px solid #dddddd;
+    }
+  
+    .styled-table tbody tr:nth-of-type(even) {
+      background-color: #f3f3f3;
+    }
+  
+    .styled-table tbody tr:last-of-type {
+      border-bottom: 2px solid var(--primary-color);
+    }
+  
+    .styled-table tbody tr.active-row {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+  
+    .styled-table a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+  
+    .styled-table a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  
+  {% endblock %}
+  

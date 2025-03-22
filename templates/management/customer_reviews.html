@@ -1,0 +1,126 @@
+
+<html>
+<head>
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <style>
+        /* General Styling */
+        {% comment %} body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            text-align: center;
+        } {% endcomment %}
+    
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+    
+        /* Swiper Styling */
+        .swiper {
+            width: 80%;
+            margin: 20px auto;
+            padding-bottom: 40px;
+        }
+    
+        .swiper-wrapper {
+            display: flex;
+        }
+    
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    
+        /* Review Card */
+        .review {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: #555;
+        }
+    
+        .review footer {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+    
+        /* Swiper Navigation */
+        .swiper-button-prev,
+        .swiper-button-next {
+            color: #333;
+        }
+    
+        /* Swiper Pagination */
+        .swiper-pagination-bullet {
+            background: #666;
+        }
+    
+    </style>
+</head>
+<body>
+    <h2>What Our Customers Are Saying</h2>
+
+    <!-- Swiper Container -->
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            {% for review in reviews %}  <!-- Remove outer `if` to handle empty slides -->
+                <div class="swiper-slide">
+                    <div class="review">
+                        <blockquote>
+                            <p>"{{ review.comments }}"</p>
+                            <footer>
+                                - <strong>{{ review.customer.full_name|default:"Anonymous" }}</strong> 
+                                <br>
+                                {% for _ in "★★★★★"|slice:review.rating %}★{% endfor %}
+                            </footer>
+                        </blockquote>
+                    </div>
+                </div>
+            {% empty %} 
+                <div class="swiper-slide">
+                    <p class="fallback-message">No customer feedback yet. Be the first!</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation and Pagination -->
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </div>
+
+    <!-- Use Swiper@11 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const swiper = new Swiper(".mySwiper", {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                loop: {% if reviews|length > 1 %}true{% else %}false{% endif %},  // Disable loop for 0/1 reviews
+                pagination: { el: ".swiper-pagination", clickable: true },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+                breakpoints: {
+                    640: { slidesPerView: 1 },
+                    768: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

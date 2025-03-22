@@ -148,4 +148,67 @@ body {
 }
 </style>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector(".profile-form").addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent form submission until validation passes
+      if (validateForm()) {
+        this.submit(); // If validation passes, submit the form
+      }
+    });
+  });
+  
+  function validateForm() {
+    const fullName = document.getElementById("full_name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const dob = document.getElementById("dob").value;
+    const place = document.getElementById("place").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const pin = document.getElementById("pin").value.trim();
+  
+    // Full Name validation
+    if (!/^[A-Za-z\s]{3,}$/.test(fullName)) {
+      alert("Enter a valid Full Name (at least 3 characters, only letters and spaces).");
+      return false;
+    }
+  
+    // Mobile validation
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+      alert("Enter a valid 10-digit Mobile Number starting with 6-9.");
+      return false;
+    }
+  
+    // Date of Birth validation - Ensuring age is at least 10 years
+    const dobDate = new Date(dob);
+    const today = new Date();
+    const minDate = new Date();
+    minDate.setFullYear(today.getFullYear() - 10);
+  
+    if (!dob || dobDate > minDate) {
+      alert("Enter a valid Date of Birth. You must be at least 10 years old.");
+      return false;
+    }
+  
+    // Place validation
+    if (!/^[A-Za-z\s]+$/.test(place)) {
+      alert("Enter a valid Place (only letters and spaces).");
+      return false;
+    }
+  
+    // City validation
+    if (!/^[A-Za-z\s]+$/.test(city)) {
+      alert("Enter a valid City name (only letters and spaces).");
+      return false;
+    }
+  
+    // PIN Code validation
+    if (!/^\d{6}$/.test(pin)) {
+      alert("PIN must be exactly 6 digits.");
+      return false;
+    }
+  
+    return true; // Form submission allowed if all validations pass
+  }
+  </script>
+  
 {% endblock %}

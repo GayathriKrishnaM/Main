@@ -1,0 +1,30 @@
+{% extends "staff/staff_base.html" %}
+{% load static %}
+
+{% block title %}View Order {% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Order #{{ order.id }}</h1>
+  </div>
+
+  <div class="order-detail">
+    <p><strong>Customer:</strong> {{ order.customer.full_name }}</p>
+    <p><strong>Staff:</strong> {{ order.staff.full_name }}</p>
+    <p><strong>Date and Time:</strong> {{ order.date_time|date:"M d, H:i" }}</p>
+    <p><strong>Order Status:</strong> {{ order.get_order_status_display }}</p>
+    <p><strong>Payment Status:</strong> {{ order.get_payment_status_display }}</p>
+    <p><strong>Delivery Status:</strong> {{ order.get_delivery_status_display }}</p>
+    <p><strong>Total Amount:</strong> ₹{{ order.total_amount|floatformat:2 }}</p>
+    <p><strong>Total Discount:</strong> ₹{{ order.total_discount|floatformat:2 }}</p>
+  </div>
+
+  <div class="ordered-items">
+    <h2>Ordered Items</h2>
+    <ul>
+      {% for item in order.items.all %}
+        <li>{{ item.menu.name }} - Quantity: {{ item.quantity }} - Price: ₹{{ item.price|floatformat:2 }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

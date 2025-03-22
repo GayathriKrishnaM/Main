@@ -1,0 +1,33 @@
+{% extends "admin_panel/admin_base.html" %}
+{% load static %}
+
+{% block title %}View Event | Admin Panel{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Event #{{ event.id }}</h1>
+  </div>
+
+  <div class="event-detail">
+    <p><strong>Customer:</strong> {{ event.customer.full_name }}</p>
+    <p><strong>Menu Items:</strong> {% for item in event.menu_items.all %}{{ item.name }}, {% endfor %}</p>
+    <p><strong>Custom Dish:</strong> {{ event.custom_dish }}</p>
+    <p><strong>Guest Count:</strong> {{ event.guest_count }}</p>
+    <p><strong>Booking Date and Time:</strong> {{ event.booking_date_time|date:"M d, H:i" }}</p>
+    <p><strong>Event Date:</strong> {{ event.event_date|date:"M d Y" }}</p>
+    <p><strong>Amount:</strong> ₹{{ event.amount|floatformat:2 }}</p>
+    <p><strong>Advance Amount:</strong> ₹{{ event.advance_amount|floatformat:2 }}</p>
+    <p><strong>Payment Status:</strong> {{ event.get_payment_status_display }}</p>
+    <p><strong>Event Type:</strong> {{ event.get_event_type_display }}</p>
+    <p><strong>Other Event Type:</strong> {{ event.other_event_type }}</p>
+    <p><strong>Staff:</strong> {{ event.staff.full_name }}</p>
+    <p><strong>Menu Items:</strong></p>
+    <ul>
+      {% for item in event.menu_items.all %}
+        <li>{{ item.name }} - ₹{{ item.price }}</li>
+      {% empty %}
+        <li>No menu items selected.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

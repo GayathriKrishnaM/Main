@@ -1,0 +1,101 @@
+{% extends "staff/staff_base.html" %}
+{% load static %}
+
+{% block title %}Customer Management{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Customers</h1>
+  </div>
+
+
+  <!-- Customer Table -->
+  <div class="data-table">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th scope="col">S.No</th>
+          <th>Customer</th>
+          <th>Contact</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ customer.full_name }} ({{ customer.email }})</td>
+          <td>{{ customer.mobile }}</td>
+          <td>{{ customer.city }}, {{ customer.place }}, {{ customer.pin }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="no-data">No customers found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+  
+    .styled-table thead tr {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      text-align: left;
+    }
+  
+    .styled-table th,
+    .styled-table td {
+      border: 1px solid #dddddd;
+      padding: 12px 15px;
+    }
+  
+    .styled-table tbody tr {
+      border-bottom: 1px solid #dddddd;
+    }
+  
+    .styled-table tbody tr:nth-of-type(even) {
+      background-color: #f3f3f3;
+    }
+  
+    .styled-table tbody tr:last-of-type {
+      border-bottom: 2px solid var(--primary-color);
+    }
+  
+    .styled-table tbody tr.active-row {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+  
+    .styled-table a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+  
+    .styled-table a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const deleteForms = document.querySelectorAll('.delete-form');
+      deleteForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+          const confirmed = confirm('Are you sure you want to delete this customer?');
+          if (!confirmed) {
+            event.preventDefault();
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
