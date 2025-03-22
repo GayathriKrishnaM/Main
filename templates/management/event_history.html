@@ -4,14 +4,40 @@
 <h1>Your Event History</h1>
 
 {% if events %}
-  {% for event in events %}
-    <div class="event">
-      <h2>Event on {{ event.event_date }}</h2>
-      <p><strong>Guest Count:</strong> {{ event.guest_count }}</p>
-      <p><a href="{% url 'event_detail' event.id %}">View Details</a></p>  <!-- Add View Details link -->
-    </div>
-    <hr>
-  {% endfor %}
+  <table>
+    <thead>
+      <tr>
+        <th>Event Date</th>
+        <th>Guest Count</th>
+        <th>Advance Amount</th>
+        <th>Total Amount</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.event_date }}</td>
+        <td>{{ event.guest_count }}</td>
+        <td>₹{{ event.advance_amount }}</td>
+        <td>₹{{ event.amount }}</td>
+        <td>
+          <a href="{% url 'event_detail' event.id %}">View Details</a>
+          
+          {% if event.can_cancel %}
+              <form action="{% url 'delete_event' event.id %}" method="post" style="display:inline;" onsubmit="return confirmDeletion()">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-delete">Cancel</button>
+              </form>
+          {% else %}
+              <button class="btn-disabled" disabled></button>
+          {% endif %}
+      </td>
+      
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% else %}
   <p>You have not planned any events yet.</p>
 {% endif %}
@@ -30,22 +56,37 @@ h1 {
     color: #333;
 }
 
-.event {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-.event h2 {
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
     font-family: 'Poppins', sans-serif;
 }
 
-.event p {
-    margin: 5px 0;
-    font-family: 'Poppins', sans-serif;
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.btn-delete {
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-delete:hover {
+    background-color: #cc0000;
 }
 </style>
+
+<script>
+function confirmDeletion() {
+  return confirm("Are you sure you want to cancel this event?");
+}
+</script>
+
 {% endblock %}

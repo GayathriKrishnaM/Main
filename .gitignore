@@ -1,0 +1,14 @@
+
+# Virtual environment
+venv/
+env/
+
+
+# Local development environment settings
+.env
+.env.local
+.env.production
+*.ini
+
+# Django migrations (optional, but useful if you want to prevent conflicts)
+**/migrations/**

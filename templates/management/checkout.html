@@ -11,7 +11,6 @@
             <th>Item</th>
             <th>Price</th>
             <th>Quantity</th>
-            <th>Subtotal</th>
           </tr>
         </thead>
         <tbody>
@@ -24,13 +23,12 @@
               {{ item.name }}
             </td>
             <td>₹{{ item.price }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>₹{{ item.price|floatformat:2 }}</td>
+            <td><input type="number" name="quantity" value="{{ item.quantity }}" min="0" style="width: 60px;" data-price="{{ item.price }}" data-key="{{ key }}" onchange="updateQuantity(this)"></td>
           </tr>
           {% endfor %}
           <tr>
             <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
-            <td>₹{{ total|floatformat:2 }}</td>
+            <td id="total-price">₹{{ total|floatformat:2 }}</td>
           </tr>
         </tbody>
       </table>
@@ -46,8 +44,8 @@
             data-buttontext="Pay with Razorpay"
             data-name="Ganga"
             data-description="Order Payment"
-            data-image="https://your-logo-url"  <!-- Update with your logo URL -->
-            data-prefill.name="{{ user.username }}"
+            data-image="https://your-logo-url"
+            data-prefill.name="{{ user.full_name }}"
             data-prefill.email="{{ user.email }}"
             data-theme.color="#F37254"
           ></script>
@@ -61,4 +59,61 @@
     {% endif %}
   </div>
 </section>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function updateTotal() {
+        let total = 0;
+        let itemCount = 0;
+        document.querySelectorAll("input[name='quantity']").forEach(input => {
+            let price = parseFloat(input.dataset.price);
+            let quantity = parseInt(input.value);
+            if (quantity > 0) {
+                total += price * quantity;
+                itemCount++;
+            } else {
+                let row = input.closest("tr");
+                if (row) {
+                    row.remove();
+                }
+            }
+        });
+        document.getElementById("total-price").textContent = "₹" + total.toFixed(2);
+        if (itemCount === 0) {
+            window.location.href = "/menu";
+        }
+    }
+
+    function updateQuantity(input) {
+        let key = input.getAttribute('data-key');
+        let quantity = input.value;
+
+        // Send AJAX request to update quantity
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'update_checkout_quantity' %}", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                let response = JSON.parse(xhr.responseText);
+                if (response.status === 'success') {
+                    updateTotal();
+
+                    window.location.reload();
+                } else {
+                    alert("Failed to update cart quantity.");
+                }
+            }
+        };
+        xhr.send("key=" + key + "&quantity=" + quantity);
+    }
+
+    document.querySelectorAll("input[name='quantity']").forEach(input => {
+        input.addEventListener("change", function () {
+            updateQuantity(this);
+        });
+    });
+
+    updateTotal();
+  });
+</script>
 {% endblock %}

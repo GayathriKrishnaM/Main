@@ -15,18 +15,18 @@
       <table class="table table-striped">
         <thead>
           <tr>
+            <th scope="col">S.No</th>
             <th scope="col">Menu Item</th>
             <th scope="col">Quantity</th>
-            <th scope="col">Expiry Date</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for item in inventory_items %}
           <tr>
+            <td>{{ forloop.counter }}</td>
             <td>{{ item.menu.name }}</td>
             <td>{{ item.quantity }} units</td>
-            <td>{{ item.expiry_date }}</td>
             <td>
               <a href="{% url 'custom_admin:edit_inventory' item.pk %}" class="btn btn-secondary" style="background-color:rgb(88, 83, 68); color: #fff; padding: 0.5rem 1rem; text-decoration: none;">
                 <i class="fas fa-edit"></i> Edit

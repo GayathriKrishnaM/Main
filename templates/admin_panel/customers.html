@@ -21,7 +21,7 @@
     <table class="customers-table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th scope="col">S.No</th>
           <th>Customer</th>
           <th>Contact</th>
           <th>Location</th>
@@ -31,7 +31,7 @@
       <tbody>
         {% for customer in customers %}
         <tr>
-          <td>#{{ customer.id }}</td>
+          <td>{{ forloop.counter }}</td>
           <td>{{ customer.full_name }} ({{ customer.email }})</td>
           <td>{{ customer.mobile }}</td>
           <td>{{ customer.city }}, {{ customer.place }}, {{ customer.pin }}</td>

@@ -14,6 +14,7 @@ urlpatterns = [
     path('order-now/<int:menu_id>/', views.order_now, name='order_now'),
     path('cart/', views.cart_view, name='cart'),
     path('update-cart/<int:menu_id>/', views.update_cart, name='update_cart'),
+    path('update_checkout_quantity/', views.update_checkout_quantity, name='update_checkout_quantity'),    
     path('checkout/', views.checkout, name='checkout'),
     path('place-order/', views.place_order, name='place_order'),  # New URL pattern
     path('order_history/', views.order_history, name='order_history'),
@@ -27,5 +28,9 @@ urlpatterns = [
     path('event_history/', views.event_history, name='event_history'),
     path('confirm_event_payment/', views.confirm_event_payment, name='confirm_event_payment'),  # Add this line
     path('submit_feedback/', views.submit_feedback, name='submit_feedback'),
-    path('notifications/', views.notifications, name='notifications'),
+    path('delete_event/<int:pk>/', views.delete_event, name='delete_event'),
+    path('delete_reservation/<int:pk>/', views.delete_reservation, name='delete_reservation'),
+    path('delete_order/<int:pk>/', views.delete_order, name='delete_order'),
+    path('rev/', views.customer_reviews, name='customer_reviews'),
+
 ]

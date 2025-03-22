@@ -19,18 +19,15 @@
         {% endfor %}
       </ul>
       <p><strong>Total Amount:</strong> ₹{{ event_plan.amount }}</p>
-      <p><strong>Advance Paid:</strong> ₹{{ event_plan.advance_amount }}</p>
-      {% if event_plan.catering_set.exists %}
+      <p><strong>Advance Amount:</strong> ₹{{ event_plan.advance_amount }}</p>
+      {% if event_plan.catering %}
         <p><strong>Catering Service:</strong> Included</p>
         <p><strong>Catering Details:</strong></p>
         <ul>
-          {% for catering in event_plan.catering_set.all %}
-            <li>Event Type: {{ catering.event_type }}</li>
-            <li>Counter Design: {{ catering.counter_design|default:"Standard" }}</li>
-            <li>Plate Type: {{ catering.plate_type|default:"Standard" }}</li>
-            <li>Catering Amount: ₹{{ catering.amount }}</li>
-            <li>Catering Payment Status: {{ catering.get_payment_status_display }}</li>
-          {% endfor %}
+          <li>Counter Design: {{ event_plan.catering.counter_design|default:"Standard" }}</li>
+          <li>Plate Type: {{ event_plan.catering.plate_type|default:"Standard" }}</li>
+          <li>Catering Amount: ₹{{ event_plan.catering.amount }}</li>
+          <li>Catering Payment Status: {{ event_plan.catering.get_payment_status_display }}</li>
         </ul>
       {% else %}
         <p><strong>Catering Service:</strong> Not Included</p>

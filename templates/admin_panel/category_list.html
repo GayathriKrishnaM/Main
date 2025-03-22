@@ -12,6 +12,7 @@
     <table class="table table-striped">
       <thead>
         <tr>
+          <th scope="col">S.No</th>
           <th scope="col">Category</th>
           <th scope="col">Actions</th>
         </tr>
@@ -19,6 +20,7 @@
       <tbody>
       {% for category in categories %}
         <tr>
+          <td>{{ forloop.counter }}</td>
           <td>{{ category.name }}</td>
           <td>
             <a href="{% url 'custom_admin:edit_category' category.pk %}" class="btn btn-secondary" style="background-color:rgb(60, 56, 46); color: #fff; padding: 0.5rem 1rem; text-decoration: none;">

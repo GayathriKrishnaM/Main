@@ -119,16 +119,11 @@
   <section class="auth-container">
     <div class="auth-card">
       <h2>Create Account</h2>
-      <form method="POST">
+      <form method="POST" action="{% url 'register' %}">
         {% csrf_token %}
         <div class="form-group">
           <label>Full Name</label>
           <input type="text" name="full_name" required>
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" name="username" required>
           <i class="fas fa-user"></i>
         </div>
         <div class="form-group">
@@ -178,5 +173,82 @@
       </div>
     </div>
   </section>
+<script>
+  // Validation Function
+function validateForm() {
+  // Get values from form
+  const fullName = document.querySelector('input[name="full_name"]').value.trim();
+  const dob = document.querySelector('input[name="dob"]').value.trim();
+  const place = document.querySelector('input[name="place"]').value.trim();
+  const city = document.querySelector('input[name="city"]').value.trim();
+  const pin = document.querySelector('input[name="pin"]').value.trim();
+  const mobile = document.querySelector('input[name="mobile"]').value.trim();
+  const email = document.querySelector('input[name="email"]').value.trim();
+  const password = document.querySelector('input[name="password"]').value;
+  const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+  if (password !== confirmPassword) {
+    alert("Passwords do not match.");
+    return false;
+  }
+  
+  // Full Name validation
+  if (!/^[A-Za-z\s]{3,}$/.test(fullName)) {
+    alert("Enter a valid name.");
+    return false;
+  }
+  
+  if (!dob) {
+    alert("Please enter a valid Date of Birth.");
+    return false;
+  }
+  const birthYear = new Date(dob).getFullYear();
+  const currentYear = new Date().getFullYear();
+  if (birthYear < 1900 || birthYear > currentYear - 10) { // Ensure user is at least 10 years old
+    alert("You must be at least 10 years old.");
+    return false;
+  }
+  
+
+// Place and City validation
+if (!/^[A-Za-z0-9\s]+$/.test(place)) {
+  alert("Enter a valid place.");
+  return false;
+}
+if (!/^[A-Za-z\s]+$/.test(city)) {
+  alert("Enter a valid city name.");
+  return false;
+}
+
+
+  // Pin validation
+  if (!/^\d{6}$/.test(pin)) {
+    alert("Pin must be exactly 6 digits.");
+    return false;
+  }
+
+  // Mobile validation
+  if (!/^[6-9]\d{9}$/.test(mobile)) {
+    alert("Enter a valid mobile number.");
+    return false;
+  }
+
+  // Email validation
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Please enter a valid email address.");
+    return false;
+  }
+  
+  // If all validations pass
+  alert("Form submitted successfully!");
+  return true;
+}
+
+// Add event listener to form submission
+document.querySelector('form').addEventListener('submit', function(event) {
+  if (!validateForm()) {
+    event.preventDefault();
+  } 
+});
+</script>
 </body>
 </html>

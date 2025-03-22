@@ -45,6 +45,7 @@
           style="margin-right: 450px;"
         />
       </div>
+      <small>Note: The amount is to be paid at restaurant for food items.</small>
 
       
       <div id="category-section" style="display: none;">
@@ -55,10 +56,9 @@
           <option value="{{ category.id }}">{{ category.name }}</option>
           {% endfor %}
         </select>
-      </div>
+      </div><br>
 
       <div id="menu-section" style="display: none;">
-        <label for="menu">Menu Items</label>
         <div class="menu-list">
           {% for menu in menus %}
           <div class="menu-item">
@@ -69,6 +69,12 @@
           {% endfor %}
         </div>
       </div>
+
+      <div id="selected-items-section" style="display: none;">
+        <label>Selected Menu Items</label>
+        <div id="selected-items-list"></div>
+      </div>
+    
 
       <button type="submit">Reserve Table <i class="fas fa-calendar-alt"></i></button>
     </form>
@@ -153,43 +159,157 @@ button:hover {
 }
 </style>
 <script>
-function toggleCategories() {
-  var checkBox = document.getElementById("preorder");
-  var categorySection = document.getElementById("category-section");
-  if (checkBox.checked == true) {
-    categorySection.style.display = "block";
-  } else {
-    categorySection.style.display = "none";
-    document.getElementById("menu-section").style.display = "none";  // Hide menu section
+  function validateForm() {
+    let guestCount = parseInt(document.getElementById("guest_count").value, 10);
+    let dateInput = document.getElementById("date").value;
+    
+
+    let today = new Date();
+    today.getDate(); // Reset time to compare only date
+    
+    let selectedDateObj = new Date(dateInput);
+    let maxDate = new Date();
+    maxDate.setDate(today.getDate() + 7); // Allow booking only within the next 7 days
+
+    // Validate Guest Count (should be between 1 and 12)
+    if (isNaN(guestCount) || guestCount < 1 || guestCount > 12) {
+        alert("The number of guests must be less than 12.");
+        return false;
+    }
+
+    // Validate Date (should be a future date and within 7 days)
+    if (selectedDateObj <= today) {
+      alert("Please select a future date.");
+      return false;
   }
+  
+
+    if (selectedDateObj > maxDate) {
+        alert("You can only book within the next 7 days.");
+        return false;
+    }
+
+    return true;
 }
+
+// Attach validation to form submission
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector("form").addEventListener("submit", function (event) {
+        if (!validateForm()) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+});
+
+  // Object to hold selected items and quantities
+  let selectedItems = {};
+
+  function toggleCategories() {
+    var checkBox = document.getElementById("preorder");
+    var categorySection = document.getElementById("category-section");
+    if (checkBox.checked == true) {
+      categorySection.style.display = "block";
+    } else {
+      categorySection.style.display = "none";
+      document.getElementById("menu-section").style.display = "none";  // Hide menu section
+    }
+  }
 
 function loadMenuItems(categoryId) {
   if (categoryId) {
+    // Hide all previously displayed category menus
+    var allCategoryContainers = document.querySelectorAll('#menu-section [data-category-id]');
+    allCategoryContainers.forEach(function(container) {
+      container.style.display = "none";
+    });
+
     var xhr = new XMLHttpRequest();
     xhr.open('GET', window.location.pathname + "?category_id=" + categoryId, true);
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4 && xhr.status == 200) {
+      if (xhr.readyState === 4 && xhr.status === 200) {
         var parser = new DOMParser();
         var doc = parser.parseFromString(xhr.responseText, 'text/html');
-        var menuSection = doc.getElementById("menu-section").innerHTML;
-        document.getElementById("menu-section").innerHTML = menuSection;
-        document.getElementById("menu-section").style.display = "block";  // Show menu section
+        var newMenuItemsHtml = doc.getElementById("menu-section").innerHTML;
+        
+        // Check if a container for this category already exists
+        var existingContainer = document.querySelector('#menu-section [data-category-id="' + categoryId + '"]');
+        if (existingContainer) {
+          // Update content and show the container
+          existingContainer.innerHTML = newMenuItemsHtml;
+          existingContainer.style.display = "block";
+        } else {
+          // Create and display a new container for this category's items
+          var categoryContainer = document.createElement('div');
+          categoryContainer.setAttribute('data-category-id', categoryId);
+          categoryContainer.innerHTML = newMenuItemsHtml;
+          categoryContainer.style.display = "block";
+          document.getElementById("menu-section").appendChild(categoryContainer);
+        }
+        
+        document.getElementById("menu-section").style.display = "block";
       }
     };
     xhr.send();
   }
 }
 
-// Show or hide menu section based on the presence of menus
-window.onload = function() {
-  var menus = {{ menus|length }};
-  var menuSection = document.getElementById("menu-section");
-  if (menus > 0) {
-    menuSection.style.display = "block";
-  } else {
-    menuSection.style.display = "none";
+
+  function saveSelectedItems() {
+    selectedItems = {}; // Clear previous selections
+    var menuItems = document.querySelectorAll('input[name="menu_items"]:checked');
+    menuItems.forEach(item => {
+      let menuId = item.value;
+      let quantityInput = item.parentElement.querySelector(`input[name="quantity_${menuId}"]`);
+      let quantity = quantityInput ? quantityInput.value : 1;
+      selectedItems[menuId] = quantity;
+    });
   }
-}
+
+  function reapplySelectedItems() {
+    for (const [menuId, quantity] of Object.entries(selectedItems)) {
+      let checkbox = document.querySelector(`input[name="menu_items"][value="${menuId}"]`);
+      if (checkbox) {
+        checkbox.checked = true;
+        let quantityInput = checkbox.parentElement.querySelector(`input[name="quantity_${menuId}"]`);
+        if (quantityInput) {
+          quantityInput.value = quantity;
+        }
+      }
+    }
+    displaySelectedItems(); // Ensure the display list is updated
+  }
+
+  function displaySelectedItems() {
+    var selectedItemsSection = document.getElementById("selected-items-section");
+    var selectedItemsList = document.getElementById("selected-items-list");
+    var menuItems = document.querySelectorAll('input[name="menu_items"]:checked');
+    selectedItemsList.innerHTML = ''; // Clear previous selected items
+    menuItems.forEach(item => {
+      var name = item.nextElementSibling.textContent.split(' - ')[0];
+      selectedItemsList.innerHTML += '<div>' + name + '</div>';
+    });
+    selectedItemsSection.style.display = menuItems.length > 0 ? 'block' : 'none';
+  }
+
+  window.onload = function() {
+    var menus = {{ menus|length }};
+    var menuSection = document.getElementById("menu-section");
+    if (menus > 0) {
+      menuSection.style.display = "block";
+    } else {
+      menuSection.style.display = "none";
+    }
+  }
+
+  document.addEventListener('change', function(event) {
+    if (event.target.name === 'menu_items') {
+      displaySelectedItems();
+    }
+    // Save selected items whenever there is a change in the menu items
+    if (event.target.name === 'menu_items' || event.target.name.startsWith('quantity_')) {
+      saveSelectedItems();
+    }
+  });
 </script>
+
 {% endblock %}

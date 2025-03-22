@@ -1,6 +1,9 @@
 {% extends "management/base.html" %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
   <!-- Hero Section -->
   <header class="hero">
@@ -57,6 +60,28 @@
       </div>
     </div>
   </section>
+
+
+  {% comment %} <section class="customer-reviews" id="reviews">
+      <h2>What Our Customers Are Saying</h2>
+      <div class="reviews-container">
+          {% for review in reviews %}
+          <div class="review">
+              <blockquote>
+                  <p>"{{ review.comments }}"</p>
+                  <footer>- {{ review.customer.full_name }} 
+                      ({% for _ in ''|ljust:review.rating %}★{% endfor %})
+                  </footer>
+              </blockquote>
+          </div>
+          {% empty %}
+          <p>No customer feedback available yet. Be the first to leave a review!</p>
+          {% endfor %}
+      </div>
+  </section> {% endcomment %}
+  <section>
+  <div id="reviews-container">Loading reviews...</div>
+  </section>
   
   <section class="contact" id="contact">
     <h2>Connect With Us</h2>
@@ -88,14 +113,72 @@
           </form>
           
         </div>
+        
         <div class="contact-info">
             <h3>Contact Details</h3>
-            <p><i class="fas fa-map-marker-alt"></i><strong>Address:</strong> West Hill Beach, Calicut - 5</p>
-            <p><i class="fas fa-phone"></i><strong>Phone:</strong> 9074105604</p>
-            <p><i class="fas fa-envelope"></i><strong>Email:</strong> santhoshkumarkv@gmail.com</p>
+            <p><i class="fas fa-map-marker-alt"></i><strong></strong> West Hill Beach, Calicut - 5</p>
+            <p><i class="fas fa-phone"></i><strong></strong> 9074105604</p>
+            <p><i class="fas fa-envelope"></i><strong></strong> restaurantganga01@gmail.com</p>
         </div>
         <div class="map-container">
           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.6749065565873!2d75.76550157486471!3d11.285290688896122!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba65edc7687f2f3%3A0x6c77d762cb821523!2sHotel%20Ganga!5e0!3m2!1sen!2sin!4v1740807870572!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>        </div>
     </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const feedbackForm = document.querySelector('.feedback-form');
+      feedbackForm.addEventListener('submit', function(event) {
+          const rating = document.querySelector('input[name="rating"]:checked');
+          const comments = document.getElementById('message').value.trim();
+          if (!rating) {
+              alert('Please select a rating before submitting.');
+              event.preventDefault();
+              return;
+          }
+          if (comments === '') {
+            alert('Please enter your feedback message.');
+            event.preventDefault();
+            return;
+          }
+          const confirmed = confirm('Are you sure you want to submit this feedback?');
+          if (!confirmed) {
+              event.preventDefault();
+          }
+      });
+  });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("http://127.0.0.1:8000/rev/")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("reviews-container").innerHTML = html;
+                
+                // Ensure Swiper is initialized after content loads
+                new Swiper(".mySwiper", {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                    loop: true,
+                    autoplay: {
+                        delay: 3000,
+                        disableOnInteraction: false
+                    },
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true
+                    },
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev"
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 1 },
+                        768: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 }
+                    }
+                });
+            })
+            .catch(error => console.error("Error loading reviews:", error));
+    });
+
+</script>
 {% endblock %}

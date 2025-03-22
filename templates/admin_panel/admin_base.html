@@ -60,6 +60,7 @@
       padding: 2rem;
       position: fixed;
       width: 250px;
+      gap: 0.5rem;
       height: 100% /* Adjust for header */
     }
     .sidebar-brand {
@@ -73,7 +74,7 @@
       padding: 0;
     }
     .nav-item {
-      margin: 1rem 0;
+      margin: 0.01rem 0;
     }
     .nav-link {
       color: white;
@@ -100,12 +101,12 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+      gap: 1rem;
       margin: 2rem 0;
     }
     .stat-card {
       background: white;
-      padding: 1.5rem;
+      padding: 1rem;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       transition: transform 0.3s ease;
@@ -243,6 +244,23 @@
           <a href="{% url 'custom_admin:inventory_list' %}" class="nav-link">
             <i class="fas fa-box"></i>
             Stock
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'custom_admin:payments' %}" class="nav-link">
+            <i class="fas fa-money-bill-wave"></i>
+            Payments
+          </a>
+        <li>
+          <a href="{% url 'custom_admin:feedbacks' %}" class="nav-link">
+            <i class="fas fa-comment"></i>
+            Feedback
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'custom_admin:notifications' %}" class="nav-link">
+            <i class="fas fa-bell"></i>
+            Notifications
           </a>
         </li>
         <li class="nav-item">

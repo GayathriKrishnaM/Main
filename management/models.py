@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class Person(models.Model):
     full_name = models.CharField(max_length=255)
@@ -29,7 +30,7 @@ class Staff(Person):
         ('manager', 'Manager'),
         ('chef', 'Chef'),
         ('waiter', 'Waiter'),
-        ('other', 'Other'),
+        ('delivery boy', 'Delivery Boy'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='staff_profile')
@@ -55,20 +56,36 @@ class Menu(models.Model):
     discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='menus')
-    
+    # inventory = models.OneToOneField('Inventory', on_delete=models.CASCADE, null=True, blank=True, related_name='menu_inventory')
+
     def __str__(self):
         return self.name
+
+from django.core.validators import MinValueValidator
+from datetime import date, timedelta
 
 class Inventory(models.Model):
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
-    quantity = models.FloatField(validators=[MinValueValidator(0)])
-    original_quantity = models.FloatField(validators=[MinValueValidator(0)])
-    expiry_date = models.DateField(null=True, blank=True)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='inventories')
+    quantity = models.IntegerField()
+    original_quantity = models.IntegerField(default=0) # Add this field
+    expiry_date = models.DateField()
     stock_alert_level = models.FloatField(default=0, help_text="Alert level quantity.")
+    is_active = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        if self.pk is None:  # If this is a new inventory item
+            self.original_quantity = self.quantity
+            if not self.expiry_date:  # Only set expiry date if it's not already provided
+                self.expiry_date = date.today()
+
+        # Automatically deactivate expired items (only if the expiry date is *before* today)
+        self.is_active = self.expiry_date >= date.today()
+
+        super().save(*args, **kwargs)
+        
     def __str__(self):
-        return self.name
-    
+        return f"{self.menu.name}  {self.quantity}"
+
 class MenuVariant(models.Model):
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='variants')
     variant_name = models.CharField(max_length=100, help_text="Variant e.g. Chicken, Fish, Vegetable")
@@ -109,7 +126,7 @@ class Order(models.Model):
     staff = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True,
                               help_text="Staff member handling the order")
     date_time = models.DateTimeField(default=timezone.now)
-    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='confirmed')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     delivery_status = models.CharField(max_length=20, choices=DELIVERY_STATUS_CHOICES, default='pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -147,6 +164,7 @@ class TableReservation(models.Model):
     guest_count = models.PositiveIntegerField(default=1)
     date = models.DateField()
     time = models.TimeField()
+    date_time = models.DateTimeField(default=timezone.now)
     booking_status = models.CharField(max_length=20, choices=RESERVATION_STATUS_CHOICES, default='pending')
     booking_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
@@ -154,6 +172,21 @@ class TableReservation(models.Model):
     def __str__(self):
         return f"Reservation {self.id} for {self.customer.full_name}"
 
+    def clean(self):
+        if self.date < date.today():
+            raise ValidationError("Reservation date cannot be in the past.")
+        
+        if self.guest_count < 1 or self.guest_count > 12:
+            raise ValidationError("Guest count should be less than 13.")
+        
+        def save(self, *args, **kwargs):
+            self.clean()
+            super().save(*args, **kwargs)
+            
+    def can_cancel(self):
+        return (timezone.now() - self.date_time) < timezone.timedelta(hours=24)
+
+            
 class Preorder(models.Model):
     reservation = models.ForeignKey(TableReservation, related_name='preorders', on_delete=models.CASCADE)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
@@ -162,6 +195,8 @@ class Preorder(models.Model):
 
     def __str__(self):
         return f"{self.quantity} {self.menu} for Reservation {self.reservation.id}"
+
+from datetime import datetime
 
 class EventPlan(models.Model):
     PAYMENT_STATUS_CHOICES = [
@@ -177,6 +212,13 @@ class EventPlan(models.Model):
         ('others', 'Others'),
     ]
 
+    EVENT_STATUS_CHOICES = [
+        ('planned', 'Planned'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     menu_items = models.ManyToManyField(Menu, blank=True)
     custom_dish = models.CharField(max_length=255, blank=True, help_text="Custom dish if any")
@@ -188,10 +230,26 @@ class EventPlan(models.Model):
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     event_type = models.CharField(max_length=20, choices=EVENT_TYPE_CHOICES, default='others')
     other_event_type = models.CharField(max_length=255, blank=True, help_text="Specify if event type is others")
+    status = models.CharField(max_length=20, choices=EVENT_STATUS_CHOICES, default='planned')
     staff = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True, help_text="Staff handling the event")
 
     def __str__(self):
         return f"Event {self.id} for {self.customer.full_name}"
+
+    def save(self, *args, **kwargs):
+        """Ensure event date is at least 5 days from today"""
+        if isinstance(self.event_date, str):  # Convert to date object if needed
+            self.event_date = datetime.strptime(self.event_date, "%Y-%m-%d").date()
+
+        if self.event_date < (timezone.now().date() + timedelta(days=5)):
+            raise ValueError("Event date must be at least 5 days from today.")
+        
+        super().save(*args, **kwargs)
+
+    def can_cancel(self):
+        """Allow cancellation only if today is at least 2 days before the event."""
+        return timezone.now().date() < (self.event_date - timedelta(days=2))
+
 
 class Catering(models.Model):
     EVENT_STATUS_CHOICES = [
@@ -202,11 +260,10 @@ class Catering(models.Model):
     ]
 
     event = models.OneToOneField(EventPlan, on_delete=models.CASCADE, related_name='catering')
-    event_type = models.CharField(max_length=100, help_text="Type of event")
     counter_design = models.CharField(max_length=100, blank=True)
     plate_type = models.CharField(max_length=100, blank=True)
+    custom_option = models.CharField(max_length=255, blank=True, help_text="Custom idea if any")
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    advance_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_status = models.CharField(max_length=20, choices=EventPlan.PAYMENT_STATUS_CHOICES, default='pending')
     status = models.CharField(max_length=20, choices=EVENT_STATUS_CHOICES, default='planned')
 
@@ -249,7 +306,7 @@ class Feedback(models.Model):
     rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     comments = models.TextField(blank=True)
     reply = models.TextField(blank=True)
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"Feedback #{self.id} from {self.customer.full_name}"

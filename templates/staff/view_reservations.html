@@ -1,0 +1,35 @@
+{% extends "staff/staff_base.html" %}
+{% load static %}
+
+{% block title %}View Reservation{% endblock %}
+
+{% block content %}
+  <div class="header-bar">
+    <h1>Reservation #{{ reservation.id }}</h1>
+  </div>
+
+  <div class="reservation-detail">
+    <p><strong>Customer:</strong> {{ reservation.customer.full_name }}</p>
+    <p><strong>Table ID:</strong> {{ reservation.table_id }}</p>
+    <p><strong>Guest Count:</strong> {{ reservation.guest_count }}</p>
+    <p><strong>Date:</strong> {{ reservation.date|date:"M d" }}</p>
+    <p><strong>Time:</strong> {{ reservation.time|time:"H:i" }}</p>
+    <p><strong>Booking Status:</strong> {{ reservation.get_booking_status_display }}</p>
+    <p><strong>Booking Fee:</strong> ₹{{ reservation.booking_fee|floatformat:2 }}</p>
+    <p><strong>Payment Status:</strong> {{ reservation.get_payment_status_display }}</p>
+  </div>
+
+  <div class="preorder-info">
+    <h3>Preordered Items</h3>
+    {% if preorders %}
+      <ul>
+        {% for preorder in preorders %}
+        <li>{{ preorder.quantity }} {{ preorder.menu.name }} - ₹{{ preorder.price }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No preordered items.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

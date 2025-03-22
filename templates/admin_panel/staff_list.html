@@ -28,7 +28,7 @@
     <table class="staffs-table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th scope="col">S.No</th>
           <th>Staff Member</th>
           <th>Role</th>
           <th>Contact</th>
@@ -39,7 +39,7 @@
       <tbody>
         {% for staff in staffs %}
         <tr>
-          <td>#{{ staff.id }}</td>
+          <td>{{ forloop.counter }}</td>
           <td>{{ staff.full_name }} ({{ staff.email }})</td>
           <td>{{ staff.get_role_display }}</td>
           <td>{{ staff.mobile }}</td>
